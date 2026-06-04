@@ -1,3 +1,6 @@
+# ─────────────────────────────────────────────────────────────
+# 🛠️ DEVELOPED BY 7GONEINSANE
+# ─────────────────────────────────────────────────────────────
 """
 PARENT TOKEN & NO BANKING REPORT GENERATOR
 ===========================================
@@ -23,8 +26,6 @@ if sys.platform == "win32":
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-# ─────────────────────────────────────────────────────────────
-# 🛠️ DEVELOPED BY 7GONEINSANE
 # ─────────────────────────────────────────────────────────────
 W = 66
 
