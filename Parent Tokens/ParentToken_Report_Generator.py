@@ -3,9 +3,7 @@
 # ─────────────────────────────────────────────────────────────
 """
 PARENT TOKEN & NO BANKING REPORT GENERATOR
-===========================================
-Developed by 7GONEINSANE
-
+==================================================================================
 INPUT FILES (auto-detected by name — place in same folder):
   - *payment_plan*        e.g. Larmenier_OSHC_payment_plan_import.csv
   - *DS*TOKEN* / *token*  e.g. Larmenier_OSHC_DS_TOKENS.csv
@@ -143,9 +141,7 @@ service_id   = (pp["Service_ID"].dropna().iloc[0].strip()
                 if "Service_ID"  in pp.columns else "")
 info("Service name      ", service_name)
 
-# ─────────────────────────────────────────────────────────────
-# HELPERS
-# ─────────────────────────────────────────────────────────────
+# ──────────────────────────────────────────────────────────────────────────────────────
 
 def cv(val):
     """Clean value — return stripped string or '' for NaN/None."""
@@ -177,13 +173,11 @@ def ds_client_to_norm(client_str):
 # BUILD LOOKUP TABLES
 # ─────────────────────────────────────────────────────────────
 
-# GFL: normalised holder name → list of rows
 gfl["_hn"] = gfl["Account Holder"].apply(norm)
 gfl_by_name: dict = {}
 for _, row in gfl.iterrows():
     gfl_by_name.setdefault(row["_hn"], []).append(row)
 
-# DS: UPPERCASE club/gateway → DS row  (exclude XXXDONOTBILL)
 ds["_cu"] = ds["Club Number"].apply(lambda v: cv(v).upper())
 ds_by_gw: dict = {}
 for _, row in ds.iterrows():
@@ -191,14 +185,12 @@ for _, row in ds.iterrows():
     if key and not key.startswith("XXX"):
         ds_by_gw[key] = row
 
-# DS: normalised client name → list of DS rows (all, incl. cancelled)
 ds_by_client: dict = {}
 for _, row in ds.iterrows():
     key = ds_client_to_norm(cv(row["Client"]))
     if key:
         ds_by_client.setdefault(key, []).append(row)
 
-# PP: helper columns
 pp["_pf"] = pp["Parent_First_Name"].apply(cv) + " " + pp["Parent_Last_Name"].apply(cv)
 pp["_cf"] = pp["Child_First_Name"].apply(cv)  + " " + pp["Child_Last_Name"].apply(cv)
 pp["_pn"] = pp["_pf"].apply(norm)
@@ -227,7 +219,7 @@ for i, row in pp.iterrows():
     gateway     = row["_gu"]
     svc_display = cv(row.get("Service_Name", service_name))
 
-    # ── CASE 1: Duplicate gateways → review sheet ────────────────────────
+    # ──────────────────────────────────────────────────────────────────────────────────────
     if parent_norm in dup_parent_set:
         gfl_id = (cv(gfl_by_name[parent_norm][0]["ID"])
                   if parent_norm in gfl_by_name else "NOT IN GFL")
@@ -241,7 +233,7 @@ for i, row in pp.iterrows():
         })
         continue
 
-    # ── CASE 2: Gateway not in DS ────────────────────────────────────────
+    # ──────────────────────────────────────────────────────────────────────────────────────
     if gateway not in ds_by_gw:
         iss_no_gw.append({
             "PP Row": csv_row, "Parent Full Name": parent_full,
@@ -251,7 +243,7 @@ for i, row in pp.iterrows():
         })
         continue
 
-    # ── CASE 3: Parent not in GFL ────────────────────────────────────────
+    # ──────────────────────────────────────────────────────────────────────────────────────
     if parent_norm not in gfl_by_name:
         child_hits = [r for _, r in gfl.iterrows()
                       if row["_cn"] in norm(cv(r["Child Names"]))]
@@ -270,7 +262,7 @@ for i, row in pp.iterrows():
         })
         continue
 
-    # ── CASE 4: Parent in GFL but child doesn't match ────────────────────
+    # ──────────────────────────────────────────────────────────────────────────────────────
     gfl_match = gfl_by_name[parent_norm][0]
     gfl_kids  = cv(gfl_match["Child Names"])
     gfl_pid   = cv(gfl_match["ID"])
@@ -285,11 +277,11 @@ for i, row in pp.iterrows():
         })
         continue
 
-    # ── VALID MATCH ───────────────────────────────────────────────────────
+    # ──────────────────────────────────────────────────────────────────────────────────
     dsr = ds_by_gw[gateway]
     valid_tokens.append({"Parent ID": gfl_pid, "Token": cv(dsr["Adfit No"])})
 
-# ── Console summary ───────────────────────────────────────────
+# ──────────────────────────────────────────────────────────────────────────────────────
 print()
 info("✅ Valid token imports          ", f"{len(valid_tokens):,}")
 info("🔁 Duplicate gateways (review) ", f"{len(dup_gateway_rows):,}")
@@ -324,8 +316,6 @@ if iss_no_gw or iss_no_parent or iss_child_diff:
 step(5, 6, "Writing output files 💾")
 
 safe_svc = service_name.replace(" ", "_").replace("/", "-")
-
-# ── Shared Excel style helpers ────────────────────────────────
 
 FONT_NAME = "Aptos"
 FONT_SIZE = 11
@@ -373,7 +363,7 @@ def autofit(ws):
         ws.row_dimensions[row[0].row].height = max(18, max_lines * 16)
 
 
-# ── A) ParentToken_Import_{ServiceName}.csv ───────────────────
+# ── A) ParentToken_Import_{ServiceName} ────────────────────────────────────
 token_out = script_folder / f"ParentToken_Import_{safe_svc}.csv"
 if valid_tokens:
     pd.DataFrame(valid_tokens).to_csv(token_out, index=False, encoding="utf-8-sig")
@@ -382,10 +372,7 @@ else:
     warn("No valid rows — ParentToken_Import CSV was not created")
 
 
-# ── B) Duplicate Gateway Review (xlsx) ───────────────────────
-# Columns: Service Name | Xplor ParentID | Parent Full Name |
-#          Child Name | Gateway Reference | Review Note
-# No title row.  Aptos 11.  Autofit.  All centred.
+# ── B) Duplicate Gateway Review ──────────────────────────────────────────
 
 if dup_gateway_rows:
     dup_out  = script_folder / f"{safe_svc}_DuplicateGateway_Review.xlsx"
@@ -398,11 +385,9 @@ if dup_gateway_rows:
         "Child Name", "Gateway Reference", "Review Note",
     ]
 
-    # Header row (row 1 — no title above it)
     for ci, h in enumerate(dup_display_cols, 1):
         apply_header(ws_dup.cell(row=1, column=ci, value=h))
 
-    # Data rows
     for ri, rd in enumerate(dup_gateway_rows, 2):
         row_bg = "FFF9E6" if ri % 2 == 0 else "FFFEF7"
         for ci, col in enumerate(dup_display_cols, 1):
@@ -447,8 +432,6 @@ else:
         bank.columns = bank.columns.str.strip()
         info("Bank rows (total)     ", f"{len(bank):,}")
 
-        # ── Filter: keep ONLY rows where Bank Details (Y/N) == "No" ─────
-        # Column H is "Bank Details (Y/N)" — find it by name
         bank_detail_col = None
         for col in bank.columns:
             if "bank detail" in col.lower():
@@ -464,7 +447,7 @@ else:
         no_bank_df = no_bank_df.reset_index(drop=True)
         info("Parents without banking", f"{len(no_bank_df):,}")
 
-        # ── Resolve Notes logic using DS Tokens ──────────────────────────
+        # ────────────────────────────────────────────────────────────────
         # "Review"     → Yellow  — parent found in DS with a valid gateway
         # "Cancelled…" → Orange  — parent has N/a (or XXX) in DS Adfit No
         # "Not found"  → plain   — parent not in DS at all
@@ -477,7 +460,6 @@ else:
             if not ds_ents:
                 return ("Not found", "")
 
-            # Check if ALL DS entries are cancelled (XXX club or N/a Adfit)
             def is_cancelled(dr):
                 adfit = cv(dr.get("Adfit No", "")).lower()
                 club  = cv(dr.get("Club Number", "")).upper()
@@ -492,17 +474,16 @@ else:
                 return ("Review", "FFFF00")                                    # yellow
             return ("Not found", "")
 
-        # ── Build No Banking rows ─────────────────────────────────────────
+        # ────────────────────────────────────────────────────────────────
         no_bank_rows = []
         for _, br in no_bank_df.iterrows():
-            # Consolidate name from bank file First Name + Last Name
+
             first   = cv(br.get("First Name", ""))
             last    = cv(br.get("Last Name", ""))
             pfull   = f"{first} {last}".strip()
             svc_id  = cv(br.get("Service ID", service_id))
             svc_nm  = cv(br.get("Service Name", service_name))
 
-            # Look up children from GFL using Account Holder == parent full name
             pn        = norm(pfull)
             gfl_match = gfl_by_name.get(pn, [])
             children  = cv(gfl_match[0]["Child Names"]) if gfl_match else ""
@@ -519,7 +500,7 @@ else:
                 "Gateway Reference": "",           # intentionally left empty
             })
 
-        # ── Write No Banking xlsx ─────────────────────────────────────────
+        # ────────────────────────────────────────────────────────────────
         nb_out = script_folder / f"{safe_svc}_No_BankingReport.xlsx"
         wb_nb  = Workbook()
         ws_nb  = wb_nb.active
@@ -530,11 +511,9 @@ else:
             "Children Full Name", "Notes", "Gateway Reference",
         ]
 
-        # Header row (row 1 — no title above it)
         for ci, h in enumerate(nb_display_cols, 1):
             apply_header(ws_nb.cell(row=1, column=ci, value=h))
 
-        # Data rows
         for ri, rd in enumerate(no_bank_rows, 2):
             row_bg = "EEF3FB" if ri % 2 == 0 else "FFFFFF"
             for ci, col in enumerate(nb_display_cols, 1):

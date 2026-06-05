@@ -1,8 +1,9 @@
+# ─────────────────────────────────────────────────────────────
+# 🛠️ DEVELOPED BY 7GONEINSANE
+# ─────────────────────────────────────────────────────────────
 """
 X2X Migration Script
-====================
-Automates the X2X Workbook process end-to-end.
-
+==================================================================================
 Inputs (place in the same folder as this script):
   - Children_data.csv          (Master CSV export from old service)
   - Emergency_contacts_data.xlsx (Emergency Contacts report from old service)
@@ -14,16 +15,6 @@ Required arguments (prompted if not supplied via command line):
 Output:
   - PC_import.csv    (ready to import into new service)
 
-Usage
------
-  python x2x_migration.py
-    (will prompt you for New Service ID and New Service Name)
-
-  python x2x_migration.py --service_id 132329 --service_name "The Grove Academy - Glendale"
-    (runs silently without prompts)
-
-  python x2x_migration.py --children Children_data.csv --ec Emergency_contacts_data.xlsx
-    (specify custom file names)
 """
 
 import argparse
@@ -33,7 +24,7 @@ from pathlib import Path
 import pandas as pd
 
 
-# ── Import template column order (164 columns) ────────────────────────────────
+# ──────────────────────────────────────────────────────────────────────────────────────
 IMPORT_COLUMNS = [
     "ServiceID", "Service_Name", "Child_Legacy_Id", "Child_First_Name",
     "Child_Middle_Name", "Child_Last_Name", "Gender", "DOB",
@@ -106,7 +97,7 @@ IMPORT_COLUMNS = [
 ]
 
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
+# ──────────────────────────────────────────────────────────────────────────────────────
 
 def _v(val):
     """Return clean string or empty string for NaN/None/0."""
@@ -179,7 +170,7 @@ def _load(path, **kwargs):
     return pd.read_csv(path, dtype=str, **kwargs)
 
 
-# ── Main process ──────────────────────────────────────────────────────────────
+# ──────────────────────────────────────────────────────────────────────────────────────
 
 def process(
     children_path: str,
@@ -192,13 +183,11 @@ def process(
     if output_path is None:
         output_path = str(base_dir / "PC_import.csv")
 
-    # ── 1. Load children (Master CSV) ─────────────────────────────────────────
+    # ──────────────────────────────────────────────────────────────────────────────────────
     print("Reading Children data ...")
     ch = _load(children_path)
     ch.columns = ch.columns.str.strip()
 
-    # Keep only up to column "Payment Details 2" (cols 1-112, 0-indexed 0-111)
-    # This is the instruction "only as far as column DH (inclusive)"
     pay2_col = "Payment Details 2"
     if pay2_col in ch.columns:
         cutoff = ch.columns.get_loc(pay2_col) + 1
@@ -206,21 +195,18 @@ def process(
     else:
         ch = ch.iloc[:, :112]
 
-    # Get old service ID from children data for EC LegacyID generation
     old_service_id = _v(ch.iloc[0].get("XplorServiceID", "")) if "XplorServiceID" in ch.columns else ""
     print(f"  {len(ch)} children loaded  |  Old Service ID: {old_service_id}")
 
-    # ── 2. Load and process Emergency Contacts ────────────────────────────────
+    # ──────────────────────────────────────────────────────────────────────────────────────
     print("Reading Emergency Contacts ...")
     ec = _load(ec_path)
     ec.columns = ec.columns.str.strip()
 
-    # SCRIPT 1: Delete rows where Emergency Contact First Name is blank (col 8)
     ec = ec[ec["Emergency Contact First Name"].notna() & (ec["Emergency Contact First Name"].str.strip() != "")].copy()
     ec = ec.reset_index(drop=True)
     print(f"  {len(ec)} EC rows after removing blank contacts")
 
-    # SCRIPT 2: Add combined child key and count per child
     ec["_child_key"] = (
         ec["Child First Name"].str.strip() + " " + ec["Child Last Name"].str.strip()
     )
@@ -230,12 +216,9 @@ def process(
         + ec["Emergency Contact Last Name"].fillna("").str.strip()
     ).str.strip()
 
-    # Assign sequential EC number per child (1 to 5)
     ec["_ec_num"] = ec.groupby("_child_key").cumcount() + 1
 
     # ── 3. Build EC LegacyID lookup ───────────────────────────────────────────
-    # Pattern: OldServiceID + sequential number (e.g. 9883201, 9883202 ...)
-    # The sequence is across unique EC names (UNIQUE formula in workbook Tab 8)
     unique_ec_names = ec["_ec_full_name"].drop_duplicates().reset_index(drop=True)
     ec_legacy_id_map = {}
     for i, name in enumerate(unique_ec_names, start=1):
@@ -245,7 +228,6 @@ def process(
     print(f"  {len(ec_legacy_id_map)} unique EC persons assigned Legacy IDs")
 
     # ── 4. Build EC lookup by child key ───────────────────────────────────────
-    # ec_by_child[child_key] = list of EC rows in order (EC1, EC2, ...)
     ec_by_child = {}
     for _, row in ec.iterrows():
         key = row["_child_key"]
@@ -254,7 +236,6 @@ def process(
         ec_by_child[key].append(row)
 
     # ── 5. Build Primary Carer lookup from children ───────────────────────────
-    # Primary carer = parent where IsPrimaryCarer 1 or 2 = "Yes"
     def get_primary_carer(row):
         for n in ["1", "2"]:
             if _v(row.get(f"IsPrimaryCarer {n}", "")).lower() == "yes":
@@ -273,10 +254,8 @@ def process(
 
         child_key = f"{_v(c.get('ChildFirst',''))} {_v(c.get('ChildLast',''))}".strip()
 
-        # Primary carer for Enrolment fields
         pc_first, pc_last, pc_crn = get_primary_carer(c)
 
-        # EC rows for this child
         ecs = ec_by_child.get(child_key, [])
 
         def ec_field(n, field):
@@ -428,15 +407,12 @@ def process(
         }
         import_rows.append(row_data)
 
-    # ── 7. Build DataFrame in correct column order ─────────────────────────────
+# ──────────────────────────────────────────────────────────────────────────────────────
     import_df = pd.DataFrame(import_rows, columns=IMPORT_COLUMNS)
 
-    # ── 8. Final clean-ups ────────────────────────────────────────────────────
-    # Replace literal 0 (exact cell match) with blank
+# ──────────────────────────────────────────────────────────────────────────────────────
     import_df = import_df.replace({"0": "", 0: ""})
 
-    # Gender: ensure no blanks — flag any missing with exact cell reference
-    # Row 1 = header in CSV, data rows start at row 2
     missing_gender_rows = import_df[import_df["Gender"].str.strip() == ""].index.tolist()
     missing_gender = []
     if missing_gender_rows:
@@ -451,7 +427,7 @@ def process(
             missing_gender.append(name)
         print()
 
-    # ── 9. Save output ────────────────────────────────────────────────────────
+# ──────────────────────────────────────────────────────────────────────────────────────
     import_df.to_csv(output_path, index=False, encoding="utf-8-sig")
 
     ec_count = import_df["EmergencyContact1_First_Name"].notna().sum()
@@ -478,9 +454,7 @@ def process(
 ===========================================================
 """)
 
-
-# ── CLI / direct run ──────────────────────────────────────────────────────────
-
+# ──────────────────────────────────────────────────────────────────────────────────────
 def main():
     parser = argparse.ArgumentParser(
         description="X2X Migration: build PC_import.csv from Children + EC reports"
@@ -495,7 +469,6 @@ def main():
                         help="Output file name (default: PC_import.csv)")
     args = parser.parse_args()
 
-    # Prompt if not supplied
     sid  = args.service_id   or input("Enter NEW Service ID   : ").strip()
     snam = args.service_name or input("Enter NEW Service Name : ").strip()
 
@@ -509,8 +482,6 @@ def main():
 
 
 if __name__ == "__main__":
-    # Prompts you for Service ID and Service Name before running.
-    # You can also hard-code them below instead of typing each time.
 
     print("=" * 50)
     print("  X2X Migration - PC Import Generator")
@@ -528,3 +499,6 @@ if __name__ == "__main__":
         new_service_name = snam,
         output_path      = r"PC_import.csv",
     )
+# Need to fix -> Read the Children_data and Emergency_contacts_data without renaming the files. Assign Parent 1 if blank by using: 
+# FirstName = Parent First, LastName = Children Last name, LegacyID = Generate unique ID and Gender = Female
+# Remove the Mobile number or email for any EC that is present in EC1 or delete the entire profile if its duplicate
