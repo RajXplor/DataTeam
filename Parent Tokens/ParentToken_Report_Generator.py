@@ -1,9 +1,7 @@
-# ─────────────────────────────────────────────────────────────
-# 🛠️ DEVELOPED BY 7GONEINSANE
-# ─────────────────────────────────────────────────────────────
 """
+DEVELOPED BY 7GONEINSANE
 PARENT TOKEN & NO BANKING REPORT GENERATOR
-==================================================================================
+===========================================
 INPUT FILES (auto-detected by name — place in same folder):
   - *payment_plan*        e.g. Larmenier_OSHC_payment_plan_import.csv
   - *DS*TOKEN* / *token*  e.g. Larmenier_OSHC_DS_TOKENS.csv
@@ -24,7 +22,6 @@ if sys.platform == "win32":
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-# ─────────────────────────────────────────────────────────────
 W = 66
 
 def divider():        print("  " + "─" * (W + 2))
@@ -35,9 +32,6 @@ def warn(msg):  print(f"       ⚠️   {msg}")
 def good(msg):  print(f"       ✅  {msg}")
 def err(msg):   print(f"       ❌  {msg}")
 
-# ─────────────────────────────────────────────────────────────
-# BANNER
-# ─────────────────────────────────────────────────────────────
 print()
 print("  " + "━" * (W + 2))
 print("  💳  PARENT TOKENS  &  NO BANKING REPORT GENERATOR")
@@ -141,7 +135,9 @@ service_id   = (pp["Service_ID"].dropna().iloc[0].strip()
                 if "Service_ID"  in pp.columns else "")
 info("Service name      ", service_name)
 
-# ──────────────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
+# HELPERS
+# ─────────────────────────────────────────────────────────────
 
 def cv(val):
     """Clean value — return stripped string or '' for NaN/None."""
@@ -168,11 +164,9 @@ def ds_client_to_norm(client_str):
         return norm(first.strip() + " " + last.strip())
     return norm(s)
 
-
 # ─────────────────────────────────────────────────────────────
 # BUILD LOOKUP TABLES
 # ─────────────────────────────────────────────────────────────
-
 gfl["_hn"] = gfl["Account Holder"].apply(norm)
 gfl_by_name: dict = {}
 for _, row in gfl.iterrows():
@@ -219,7 +213,6 @@ for i, row in pp.iterrows():
     gateway     = row["_gu"]
     svc_display = cv(row.get("Service_Name", service_name))
 
-    # ──────────────────────────────────────────────────────────────────────────────────────
     if parent_norm in dup_parent_set:
         gfl_id = (cv(gfl_by_name[parent_norm][0]["ID"])
                   if parent_norm in gfl_by_name else "NOT IN GFL")
@@ -233,7 +226,6 @@ for i, row in pp.iterrows():
         })
         continue
 
-    # ──────────────────────────────────────────────────────────────────────────────────────
     if gateway not in ds_by_gw:
         iss_no_gw.append({
             "PP Row": csv_row, "Parent Full Name": parent_full,
@@ -243,7 +235,6 @@ for i, row in pp.iterrows():
         })
         continue
 
-    # ──────────────────────────────────────────────────────────────────────────────────────
     if parent_norm not in gfl_by_name:
         child_hits = [r for _, r in gfl.iterrows()
                       if row["_cn"] in norm(cv(r["Child Names"]))]
@@ -262,7 +253,6 @@ for i, row in pp.iterrows():
         })
         continue
 
-    # ──────────────────────────────────────────────────────────────────────────────────────
     gfl_match = gfl_by_name[parent_norm][0]
     gfl_kids  = cv(gfl_match["Child Names"])
     gfl_pid   = cv(gfl_match["ID"])
@@ -277,11 +267,10 @@ for i, row in pp.iterrows():
         })
         continue
 
-    # ──────────────────────────────────────────────────────────────────────────────────
     dsr = ds_by_gw[gateway]
     valid_tokens.append({"Parent ID": gfl_pid, "Token": cv(dsr["Adfit No"])})
 
-# ──────────────────────────────────────────────────────────────────────────────────────
+# ── Console summary ───────────────────────────────────────────
 print()
 info("✅ Valid token imports          ", f"{len(valid_tokens):,}")
 info("🔁 Duplicate gateways (review) ", f"{len(dup_gateway_rows):,}")
@@ -342,28 +331,34 @@ def apply_data(cell, bg="FFFFFF", bold=False):
 
 
 def autofit(ws):
-    """
-    Auto-fit every column to its widest cell content,
-    and auto-fit row heights based on wrapped content.
-    """
-    for col in ws.columns:
-        col_letter = get_column_letter(col[0].column)
-        best_width = max(
-            (len(str(cell.value)) if cell.value else 0 for cell in col),
-            default=10
-        )
-        ws.column_dimensions[col_letter].width = min(best_width + 6, 60)
+    col_max: dict = {}
+    for row in ws.iter_rows():
+        for cell in row:
+            if cell.value is None:
+                continue
+            col_letter = get_column_letter(cell.column)
+            text_len   = len(str(cell.value))
+            if text_len > col_max.get(col_letter, 0):
+                col_max[col_letter] = text_len
+
+    for col_letter, max_len in col_max.items():
+        width = max(10, int(max_len * 1.1) + 4)
+        ws.column_dimensions[col_letter].width = width
 
     for row in ws.iter_rows():
+        row_num   = row[0].row
         max_lines = 1
         for cell in row:
             if cell.value:
-                lines = str(cell.value).count("\n") + 1
+                col_letter     = get_column_letter(cell.column)
+                col_w          = max(1, ws.column_dimensions[col_letter].width)
+                text           = str(cell.value)
+                chars_per_line = max(1, int(col_w / 1.1))
+                lines = max(1, -(-len(text) // chars_per_line))
                 max_lines = max(max_lines, lines)
-        ws.row_dimensions[row[0].row].height = max(18, max_lines * 16)
+        ws.row_dimensions[row_num].height = max(20, max_lines * 15 + 6)
 
-
-# ── A) ParentToken_Import_{ServiceName} ────────────────────────────────────
+# ── A) ParentToken_Import_{ServiceName}.csv ───────────────────
 token_out = script_folder / f"ParentToken_Import_{safe_svc}.csv"
 if valid_tokens:
     pd.DataFrame(valid_tokens).to_csv(token_out, index=False, encoding="utf-8-sig")
@@ -371,9 +366,7 @@ if valid_tokens:
 else:
     warn("No valid rows — ParentToken_Import CSV was not created")
 
-
-# ── B) Duplicate Gateway Review ──────────────────────────────────────────
-
+# ── B) Duplicate Gateway Review (xlsx) ───────────────────────
 if dup_gateway_rows:
     dup_out  = script_folder / f"{safe_svc}_DuplicateGateway_Review.xlsx"
     wb_dup   = Workbook()
@@ -402,7 +395,6 @@ if dup_gateway_rows:
     ws_dup.freeze_panes = "A2"
     wb_dup.save(dup_out)
     good(f"{dup_out.name}  ({len(dup_gateway_rows)} rows)")
-
 
 # ─────────────────────────────────────────────────────────────
 # STEP 6 — NO BANKING REPORT
@@ -447,11 +439,6 @@ else:
         no_bank_df = no_bank_df.reset_index(drop=True)
         info("Parents without banking", f"{len(no_bank_df):,}")
 
-        # ────────────────────────────────────────────────────────────────
-        # "Review"     → Yellow  — parent found in DS with a valid gateway
-        # "Cancelled…" → Orange  — parent has N/a (or XXX) in DS Adfit No
-        # "Not found"  → plain   — parent not in DS at all
-
         def get_note(parent_full_name):
             """Return (note_text, hex_colour) for this parent."""
             pn = norm(parent_full_name)
@@ -474,7 +461,6 @@ else:
                 return ("Review", "FFFF00")                                    # yellow
             return ("Not found", "")
 
-        # ────────────────────────────────────────────────────────────────
         no_bank_rows = []
         for _, br in no_bank_df.iterrows():
 
@@ -497,10 +483,9 @@ else:
                 "Children Full Name": children,
                 "Notes"            : note_text,
                 "_note_color"      : note_color,
-                "Gateway Reference": "",           # intentionally left empty
+                "Gateway Reference": "",
             })
 
-        # ────────────────────────────────────────────────────────────────
         nb_out = script_folder / f"{safe_svc}_No_BankingReport.xlsx"
         wb_nb  = Workbook()
         ws_nb  = wb_nb.active
@@ -536,6 +521,7 @@ else:
 print()
 print("  " + "━" * (W + 2))
 print("  ✅  SUCCESS  —  Script finished without errors")
+print("  🚀  DEVELOPED BY 7GONEINSANE")
 print("  " + "━" * (W + 2))
 print()
 print(f"  📄 Results:")
