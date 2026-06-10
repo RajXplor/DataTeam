@@ -1,6 +1,6 @@
 """
 🛠️  DEVELOPED BY 7GONEINSANE
-X2X Migration Script  v2
+X2X Migration Script  v4
 ==================================================================================
 Inputs  (place in the same folder as this script — NO renaming required):
   · Any CSV/Excel file with  "child_data_master"         anywhere in its filename
@@ -12,18 +12,22 @@ Required (prompted at runtime):
   · New Service Name
 
 Output:
-  · PC_import.csv  (ready to import into new service)
+  · {ServiceName}_PC_Import.csv  (ready to import into new service)
 """
 # ──────────────────────────────────────────────────────────────────────────────
-# What's new in v2:
-# ✔  Auto-detects input files by name pattern — no fixed filenames needed
-# ✔  Removes duplicate EC profiles (full delete or field-level clear)
-# ✔  Auto-creates a placeholder Parent 1 where none exists
-# ✔  Professional formatted output with full audit report
+# v4 changes:
+# ✔  Phone numbers — fixed Excel float issue; leading 0, 10 digits, no specials
+# ✔  Postcodes — strict 4-digit enforcement via regex
+# ✔  Medicare Number — digits only, strips trailing text (Ref no., NO:, REF:, etc.)
+# ✔  Medicare Expiry Date — parses Month-DD (Oct-29), standard dates, random
+#     numbers → today's date
+# ✔  Output filename prefixed with Service Name: ServiceName_PC_Import.csv
 # ──────────────────────────────────────────────────────────────────────────────
 
 import argparse
+import re
 import sys
+from datetime import date as _date_cls
 from pathlib import Path
 
 import pandas as pd
@@ -110,8 +114,23 @@ SEP   = "  " + "═" * 86   # major section separator
 LINE  = "  " + "─" * 64   # minor separator
 ALERT = "  " + "■" * 64   # urgent alert border
 
+MONTH_ABBR = {
+    'jan': 1,  'january': 1,
+    'feb': 2,  'february': 2,
+    'mar': 3,  'march': 3,
+    'apr': 4,  'april': 4,
+    'may': 5,
+    'jun': 6,  'june': 6,
+    'jul': 7,  'july': 7,
+    'aug': 8,  'august': 8,
+    'sep': 9,  'sept': 9,  'september': 9,
+    'oct': 10, 'october': 10,
+    'nov': 11, 'november': 11,
+    'dec': 12, 'december': 12,
+}
+
 def _v(val):
-    """Return clean string or empty string for NaN/None/0."""
+
     if val is None:
         return ""
     s = str(val).strip()
@@ -120,7 +139,6 @@ def _v(val):
     return s
 
 def _date(val):
-    """Parse any date and return dd/mm/yyyy string."""
     s = _v(val)
     if not s:
         return ""
@@ -130,26 +148,36 @@ def _date(val):
         return s
 
 def _postcode(val):
-    """Ensure postcode is 4 digits (NT postcodes start with 0)."""
-    s = _v(val)
-    if not s or s == "0000":
-        return ""
-    try:
-        return str(int(float(s))).zfill(4)
-    except Exception:
-        return s
-
-def _phone(val):
-    """Strip leading 0 from Australian phone numbers."""
     s = _v(val)
     if not s:
         return ""
-    if s.startswith("0"):
-        s = s[1:]
-    return s
+    digits = re.sub(r'\D', '', s)       # keep digits only
+    if not digits or digits == '0000':
+        return ""
+    return digits.zfill(4)[:4]          # pad left to 4, hard-cap at 4
+
+def _phone(val):
+    s = _v(val)
+    if not s:
+        return ""
+    # Step 1 — collapse Excel float / scientific notation
+    try:
+        s = str(int(float(s)))
+    except (ValueError, OverflowError):
+        pass   # formatted string like "(02) 9876 5432" — proceed as-is
+    # Step 2 — strip non-digits
+    digits = re.sub(r'\D', '', s)
+    if not digits:
+        return ""
+    # Step 3 — remove international dialling prefix +61 → 0
+    if digits.startswith('61') and len(digits) == 11:
+        digits = '0' + digits[2:]
+    # Step 4 — ensure leading 0
+    if not digits.startswith('0'):
+        digits = '0' + digits
+    return digits
 
 def _yn(val):
-    """Convert Yes/No to Y/N."""
     s = _v(val).lower()
     if s == "yes":
         return "Y"
@@ -158,19 +186,16 @@ def _yn(val):
     return _v(val)
 
 def _ec_perm(val):
-    """Convert 'yes'→1, 'no'→blank for EC permission columns."""
     if _v(val).lower() == "yes":
         return 1
     return ""
 
 def _norm(s):
-    """Normalise a string for comparison: strip whitespace and lowercase."""
     if s is None:
         return ""
     return str(s).strip().lower()
 
 def _load(path, **kwargs):
-    """Load a CSV or Excel file as a string-typed DataFrame."""
     p = Path(path)
     if not p.exists():
         print(f"\n  ❌  ERROR: File not found → {path}")
@@ -183,15 +208,54 @@ def _load(path, **kwargs):
         return pd.read_excel(path, dtype=str, **kwargs)
     return pd.read_csv(path, dtype=str, **kwargs)
 
+
+def _medicare(val):
+    s = _v(val)
+    if not s:
+        return ""
+    nums = re.findall(r'\d+', s)
+    if not nums:
+        return ""
+    return max(nums, key=len)
+
+
+def _medicare_date(val):
+    today = _date_cls.today()
+    s = _v(val)
+    if not s:
+        return ""
+
+    if re.match(r'^\d+$', s.strip()):
+        return today.strftime("%d/%m/%Y")
+
+    m = re.match(r'^([A-Za-z]{2,9})[^A-Za-z0-9]*(\d{1,2})$', s.strip(), re.IGNORECASE)
+    if m:
+        month_str = m.group(1).lower()
+        day = int(m.group(2))
+        if month_str in MONTH_ABBR and 1 <= day <= 31:
+            month_num = MONTH_ABBR[month_str]
+            try:
+                return _date_cls(today.year, month_num, day).strftime("%d/%m/%Y")
+            except ValueError:
+                pass
+
+    try:
+        return pd.to_datetime(s, dayfirst=True).strftime("%d/%m/%Y")
+    except Exception:
+        pass
+
+    return today.strftime("%d/%m/%Y")
+
+
+def _safe_filename(name: str) -> str:
+    s = name.strip().replace(' ', '_')
+    s = re.sub(r'[^\w\-]', '', s)
+    return s or 'Service'
+
 # ──────────────────────────────────────────────────────────────────────────────
 # FILE AUTO-DETECTION
 # ──────────────────────────────────────────────────────────────────────────────
 def find_file(folder, pattern, label):
-    """
-    Find a CSV/Excel file in *folder* whose filename stem contains *pattern*
-    (case-insensitive).  Supports .csv .xlsx .xlsm .xls
-    Exits with a clear message if nothing is found.
-    """
     exts = {".csv", ".xlsx", ".xlsm", ".xls"}
     folder = Path(folder)
     matches = sorted(
@@ -229,7 +293,8 @@ def process(
 ):
     base_dir = Path(children_path).parent
     if output_path is None:
-        output_path = str(base_dir / "PC_import.csv")
+        safe = _safe_filename(new_service_name)
+        output_path = str(base_dir / f"{safe}_PC_Import.csv")
 
     print(f"\n  📂  Step 1  ·  Loading Children data ...")
     ch = _load(children_path)
@@ -311,7 +376,7 @@ def process(
             if field == "Last_Name":
                 return _v(row.get("Emergency Contact Last Name", ""))
             if field == "Contact_Number":
-                return _v(row.get("Emergency Contact Number", ""))
+                return _phone(row.get("Emergency Contact Number", ""))
             if field == "Address":
                 addr  = _v(row.get("Emergency Contact Address", ""))
                 addr2 = _v(row.get("Emergency Contact Address 2", ""))
@@ -352,8 +417,8 @@ def process(
             "Cultural_Background":          _v(c.get("Cultural Background", "")),
             "Cultural_Requirements":        _v(c.get("Cultural Requirements", "")),
             "Indigenous_Status":            _v(c.get("Indigenous Status", "")),
-            "Medicare_Number":              _v(c.get("Medicare Number", "")),
-            "Medicare_Expiry_Date":         _date(c.get("Medicare Expiry Date", "")),
+            "Medicare_Number":              _medicare(c.get("Medicare Number", "")),
+            "Medicare_Expiry_Date":         _medicare_date(c.get("Medicare Expiry Date", "")),
             "Ambulance_Cover_Number":       _v(c.get("Ambulance Cover Number", "")),
             "Health_Care_Centre":           _v(c.get("Health Care Centre", "")),
             "Medical_Practitioner_Name":    _v(c.get("Medical Practitioner Name", "")),
@@ -441,8 +506,8 @@ def process(
     # ────────────── EC Duplicate Check ───────────────────────────────────────────
     print(f"\n  🔍  Step 4  ·  Checking for EC duplicates ...")
 
-    ec_dup_full    = []   # list of dicts for full-delete report
-    ec_dup_partial = []   # list of dicts for partial-clear report
+    ec_dup_full    = []
+    ec_dup_partial = []
     full_deletes   = 0
     partial_clears = 0
 
@@ -655,7 +720,7 @@ def process(
         print(f"\n{LINE}")
         print(f"  ⚠️   MISSING GENDER  —  MANUAL UPDATE REQUIRED  ({len(missing_gender)} children)")
         print(LINE)
-        print(f"\n  Open PC_import.csv and type  Male  or  Female  in Column G:\n")
+        print(f"\n  Open {Path(output_path).name} and type  Male  or  Female  in Column G:\n")
         print(f"  {'Cell':<12}  Child Name")
         print(f"  {'─'*12}  {'─'*32}")
         for csv_row, name in missing_gender:
@@ -700,8 +765,8 @@ def main():
     parser.add_argument("--service_id",   default=None, help="New Service ID")
     parser.add_argument("--service_name", default=None, help="New Service Name")
     parser.add_argument(
-        "--output", default="PC_import.csv",
-        help="Output filename (default: PC_import.csv)"
+        "--output", default=None,
+        help="Output filename (default: {ServiceName}_PC_Import.csv)"
     )
     args = parser.parse_args()
 
@@ -726,7 +791,7 @@ if __name__ == "__main__":
 
     print()
     print("  ═══════════════════════════════════════════════════════════════")
-    print("  🚀  X2X MIGRATION  ·  PARENT | CHILD IMPORT FILE GENERATOR  v2")
+    print("  🚀  X2X MIGRATION  ·  PARENT | CHILD IMPORT FILE GENERATOR  v4")
     print("  ═══════════════════════════════════════════════════════════════")
     print()
 
@@ -749,10 +814,5 @@ if __name__ == "__main__":
         ec_path          = ec_path,
         new_service_id   = sid,
         new_service_name = snam,
-        output_path      = str(folder / "PC_import.csv"),
     )
     input("\n  Press Enter to close ...")
-    
-# Next fix -> 
-# All the mobile numbers should be leading with 0 and should be 10 digits no special characters or spaces.
-# Add ServiceName infront of the PC_Import.csv file name. e.g. ServiceName_PC_Import.csv
