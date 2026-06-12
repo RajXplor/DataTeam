@@ -16,26 +16,56 @@ OUTPUTS:
 
 import sys
 import re
+import os
 from pathlib import Path
 
 if sys.platform == "win32":
+    import ctypes
+    try:
+        kernel32 = ctypes.windll.kernel32
+        kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
+    except Exception:
+        pass
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
+CR  = "\033[0m"       # Reset
+CM  = "\033[95;1m"    # Bright magenta  — banner title
+CC  = "\033[96;1m"    # Bright cyan     — service name, row data
+CO  = "\033[33;1m"    # Bright amber    — section headers
+CL  = "\033[35;1m"    # Bright lavender — reason / detail lines
+CG  = "\033[92m"      # Bright green    — success / good
+CRed= "\033[91m"      # Bright red      — errors / excluded
+CW  = "\033[97m"      # Bright white    — labels / results
+
 W = 66
 
-def divider():        print("  " + "─" * (W + 2))
-def step(n, t, lbl):  print(f"\n  🔹 [{n}/{t}]  {lbl}")
+def divider():
+    print(f"  {CL}{'─' * (W + 2)}{CR}")
+
+def step(n, t, lbl):
+    print(f"\n  {CC}🔹 [{n}/{t}]{CR}  {CW}{lbl}{CR}")
+
 def info(lbl, val=""):
-    print(f"       {lbl} {'·'*max(2,46-len(lbl))} {val}" if val else f"       {lbl}")
-def warn(msg):  print(f"       ⚠️   {msg}")
-def good(msg):  print(f"       ✅  {msg}")
-def err(msg):   print(f"       ❌  {msg}")
+    if val:
+        dots = "·" * max(2, 46 - len(lbl))
+        print(f"       {CW}{lbl} {dots} {CC}{val}{CR}")
+    else:
+        print(f"       {CW}{lbl}{CR}")
+
+def warn(msg):  print(f"       {CO}⚠️   {msg}{CR}")
+def good(msg):  print(f"       {CG}✅  {msg}{CR}")
+def err(msg):   print(f"       {CRed}❌  {msg}{CR}")
+
+def section_header(label):
+    divider()
+    print(f"       {CO}🔍 {label}{CR}")
+    divider()
 
 print()
-print("  " + "━" * (W + 2))
-print("  💳  PARENT TOKENS  &  NO BANKING REPORT GENERATOR")
-print("  " + "━" * (W + 2))
+print(f"  {CM}{'━' * (W + 2)}{CR}")
+print(f"  {CM}💳  PARENT TOKENS  &  NO BANKING REPORT GENERATOR{CR}")
+print(f"  {CM}{'━' * (W + 2)}{CR}")
 
 # ─────────────────────────────────────────────────────────────
 # STEP 1 — PACKAGES
@@ -63,7 +93,6 @@ script_folder = Path(__file__).parent
 
 
 def find_file(folder, *keywords):
-    """Find first file whose lowercase name contains ALL keywords."""
     valid_ext = {".csv", ".xlsx", ".xlsm", ".xls"}
     for f in sorted(folder.iterdir()):
         if f.suffix.lower() not in valid_ext:
@@ -75,10 +104,6 @@ def find_file(folder, *keywords):
 
 
 def read_any(path):
-    """
-    Read CSV or Excel into DataFrame.
-    Handles CSV files with a 1–2 line report-title preamble automatically.
-    """
     ext = path.suffix.lower()
     if ext in (".xlsx", ".xlsm", ".xls"):
         return pd.read_excel(path, dtype=str)
@@ -135,38 +160,32 @@ service_id   = (pp["Service_ID"].dropna().iloc[0].strip()
                 if "Service_ID"  in pp.columns else "")
 info("Service name      ", service_name)
 
-# ─────────────────────────────────────────────────────────────
-# HELPERS
-# ─────────────────────────────────────────────────────────────
+print()
+divider()
+print(f"  {CC}  {service_name}{CR}")
+divider()
 
 def cv(val):
-    """Clean value — return stripped string or '' for NaN/None."""
     if val is None or (isinstance(val, float) and pd.isna(val)):
         return ""
     return str(val).strip()
 
 
 def norm(s):
-    """Lowercase + collapse whitespace for fuzzy matching."""
     return re.sub(r"\s+", " ", cv(s).lower()).strip()
 
 
 def child_in_gfl(pp_child, gfl_children_csv):
-    """True when pp_child appears in the comma-separated GFL children list."""
     return norm(pp_child) in [norm(c) for c in gfl_children_csv.split(",")]
 
 
 def ds_client_to_norm(client_str):
-    """DS Client is stored as 'Last, First' — convert to 'first last'."""
     s = cv(client_str)
     if "," in s:
         last, first = s.split(",", 1)
         return norm(first.strip() + " " + last.strip())
     return norm(s)
 
-# ─────────────────────────────────────────────────────────────
-# BUILD LOOKUP TABLES
-# ─────────────────────────────────────────────────────────────
 gfl["_hn"] = gfl["Account Holder"].apply(norm)
 gfl_by_name: dict = {}
 for _, row in gfl.iterrows():
@@ -217,12 +236,12 @@ for i, row in pp.iterrows():
         gfl_id = (cv(gfl_by_name[parent_norm][0]["ID"])
                   if parent_norm in gfl_by_name else "NOT IN GFL")
         dup_gateway_rows.append({
-            "Service Name"    : svc_display,
-            "Xplor ParentID"  : gfl_id,
-            "Parent Full Name": parent_full,
-            "Child Name"      : child_full,
+            "Service Name"     : svc_display,
+            "Xplor ParentID"   : gfl_id,
+            "Parent Full Name" : parent_full,
+            "Child Name"       : child_full,
             "Gateway Reference": cv(row["Gateway_Reference"]),
-            "Review Note"     : "DUPLICATE — same parent has more than one gateway reference",
+            "Review Note"      : "DUPLICATE — same parent has more than one gateway reference",
         })
         continue
 
@@ -270,7 +289,6 @@ for i, row in pp.iterrows():
     dsr = ds_by_gw[gateway]
     valid_tokens.append({"Parent ID": gfl_pid, "Token": cv(dsr["Adfit No"])})
 
-# ── Console summary ───────────────────────────────────────────
 print()
 info("✅ Valid token imports          ", f"{len(valid_tokens):,}")
 info("🔁 Duplicate gateways (review) ", f"{len(dup_gateway_rows):,}")
@@ -279,22 +297,24 @@ info("❌ Parents not in GFL           ", f"{len(iss_no_parent):,}")
 info("❌ Child mismatches             ", f"{len(iss_child_diff):,}")
 
 if iss_no_gw:
-    print(); divider(); info(" 🔍 GATEWAYS NOT FOUND IN DS TOKENS"); divider()
+    print()
+    section_header("GATEWAYS NOT FOUND IN DS TOKENS")
     for x in iss_no_gw:
-        print(f"       Row {x['PP Row']:>3}  {x['Parent Full Name']:<28}  {x['Child Name']}")
-        print(f"              Gateway: {x['Gateway Ref']}")
+        print(f"       {CC}Row {x['PP Row']:>3}  {x['Parent Full Name']:<28}  {x['Child Name']}{CR}")
 
 if iss_no_parent:
-    print(); divider(); info(" 🔍 PARENTS / CHILDREN NOT IN GUARDIAN LIST"); divider()
+    print()
+    section_header("PARENTS / CHILDREN NOT IN GUARDIAN LIST")
     for x in iss_no_parent:
-        print(f"       Row {x['PP Row']:>3}  {x['Parent Full Name']:<28}  {x['Child Name']}")
-        print(f"              {x['Issue']}")
+        print(f"       {CC}Row {x['PP Row']:>3}  {x['Parent Full Name']:<28}  {x['Child Name']}{CR}")
+        print(f"              {CL}{x['Issue']}{CR}")
 
 if iss_child_diff:
-    print(); divider(); info(" 🔍 CHILD NAME MISMATCHES"); divider()
+    print()
+    section_header("CHILD NAME MISMATCHES")
     for x in iss_child_diff:
-        print(f"       Row {x['PP Row']:>3}  {x['Parent Full Name']:<28}  PP: {x['Child in PP']}")
-        print(f"              GFL children: {x['GFL Children']}")
+        print(f"       {CC}Row {x['PP Row']:>3}  {x['Parent Full Name']:<28}  PP: {x['Child in PP']}{CR}")
+        print(f"              {CL}GFL children: {x['GFL Children']}{CR}")
 
 if iss_no_gw or iss_no_parent or iss_child_diff:
     divider()
@@ -315,7 +335,6 @@ def mk_border(color="CCCCCC"):
 
 
 def apply_header(cell, bg="1F3864", fg="FFFFFF"):
-    """Dark navy header — Aptos 11 bold white, centred."""
     cell.fill      = PatternFill("solid", fgColor=bg)
     cell.font      = Font(name=FONT_NAME, bold=True, color=fg, size=FONT_SIZE)
     cell.border    = mk_border()
@@ -323,7 +342,6 @@ def apply_header(cell, bg="1F3864", fg="FFFFFF"):
 
 
 def apply_data(cell, bg="FFFFFF", bold=False):
-    """Data cell — Aptos 11, centred, with light border."""
     cell.fill      = PatternFill("solid", fgColor=bg)
     cell.font      = Font(name=FONT_NAME, bold=bold, size=FONT_SIZE)
     cell.border    = mk_border()
@@ -354,11 +372,10 @@ def autofit(ws):
                 col_w          = max(1, ws.column_dimensions[col_letter].width)
                 text           = str(cell.value)
                 chars_per_line = max(1, int(col_w / 1.1))
-                lines = max(1, -(-len(text) // chars_per_line))
-                max_lines = max(max_lines, lines)
+                lines          = max(1, -(-len(text) // chars_per_line))
+                max_lines      = max(max_lines, lines)
         ws.row_dimensions[row_num].height = max(20, max_lines * 15 + 6)
 
-# ── A) ParentToken_Import_{ServiceName}.csv ───────────────────
 token_out = script_folder / f"ParentToken_Import_{safe_svc}.csv"
 if valid_tokens:
     pd.DataFrame(valid_tokens).to_csv(token_out, index=False, encoding="utf-8-sig")
@@ -366,7 +383,6 @@ if valid_tokens:
 else:
     warn("No valid rows — ParentToken_Import CSV was not created")
 
-# ── B) Duplicate Gateway Review (xlsx) ───────────────────────
 if dup_gateway_rows:
     dup_out  = script_folder / f"{safe_svc}_DuplicateGateway_Review.xlsx"
     wb_dup   = Workbook()
@@ -402,11 +418,11 @@ if dup_gateway_rows:
 step(6, 6, "No Banking Report 🏦")
 print()
 divider()
-print("  📁 Is the parent_bank_details_summary_report")
-print("     uploaded to this folder?")
+print(f"  {CO}📁 Is the parent_bank_details_summary_report{CR}")
+print(f"     {CO}uploaded to this folder?{CR}")
 divider()
 print()
-response = input("  Enter Yes or No: ").strip().lower()
+response = input(f"  {CW}Enter Yes or No: {CR}").strip().lower()
 print()
 
 if response not in ("yes", "y"):
@@ -441,7 +457,7 @@ else:
 
         def get_note(parent_full_name):
             """Return (note_text, hex_colour) for this parent."""
-            pn = norm(parent_full_name)
+            pn      = norm(parent_full_name)
             ds_ents = ds_by_client.get(pn, [])
 
             if not ds_ents:
@@ -463,12 +479,11 @@ else:
 
         no_bank_rows = []
         for _, br in no_bank_df.iterrows():
-
-            first   = cv(br.get("First Name", ""))
-            last    = cv(br.get("Last Name", ""))
-            pfull   = f"{first} {last}".strip()
-            svc_id  = cv(br.get("Service ID", service_id))
-            svc_nm  = cv(br.get("Service Name", service_name))
+            first  = cv(br.get("First Name", ""))
+            last   = cv(br.get("Last Name",  ""))
+            pfull  = f"{first} {last}".strip()
+            svc_id = cv(br.get("Service ID",   service_id))
+            svc_nm = cv(br.get("Service Name", service_name))
 
             pn        = norm(pfull)
             gfl_match = gfl_by_name.get(pn, [])
@@ -477,13 +492,13 @@ else:
             note_text, note_color = get_note(pfull)
 
             no_bank_rows.append({
-                "Service ID"       : svc_id,
-                "Service Name"     : svc_nm,
-                "Parent Full Name" : pfull,
+                "Service ID"        : svc_id,
+                "Service Name"      : svc_nm,
+                "Parent Full Name"  : pfull,
                 "Children Full Name": children,
-                "Notes"            : note_text,
-                "_note_color"      : note_color,
-                "Gateway Reference": "",
+                "Notes"             : note_text,
+                "_note_color"       : note_color,
+                "Gateway Reference" : "",
             })
 
         nb_out = script_folder / f"{safe_svc}_No_BankingReport.xlsx"
@@ -519,18 +534,17 @@ else:
 # FINAL SUMMARY
 # ─────────────────────────────────────────────────────────────
 print()
-print("  " + "━" * (W + 2))
-print("  ✅  SUCCESS  —  Script finished without errors")
-print("  🚀  DEVELOPED BY 7GONEINSANE")
-print("  " + "━" * (W + 2))
+print(f"  {CL}{'━' * (W + 2)}{CR}")
+print(f"  {CG}✅  SUCCESS  —  Script finished without errors{CR}")
+print(f"  {CL}{'━' * (W + 2)}{CR}")
 print()
-print(f"  📄 Results:")
-print(f"       ✅  Valid tokens in ParentToken_Import_{safe_svc}.csv  :  {len(valid_tokens)}")
-print(f"       🔁  Duplicate gateway rows (review file)              :  {len(dup_gateway_rows)}")
+print(f"  {CW}📄 Results:{CR}")
+print(f"       {CG}✅  Valid tokens in ParentToken_Import_{safe_svc}.csv  :  {len(valid_tokens)}{CR}")
+print(f"       {CC}🔁  Duplicate gateway rows (review file)              :  {len(dup_gateway_rows)}{CR}")
 print()
-print(f"  ❌ Excluded from ParentToken_Import:")
-print(f"       Gateway not found in DS Tokens     :  {len(iss_no_gw)}")
-print(f"       Parent not found in guardian list  :  {len(iss_no_parent)}")
-print(f"       Child name does not match          :  {len(iss_child_diff)}")
+print(f"  {CRed}❌ Excluded from ParentToken_Import:{CR}")
+print(f"       {CW}Gateway not found in DS Tokens     :  {len(iss_no_gw)}{CR}")
+print(f"       {CW}Parent not found in guardian list  :  {len(iss_no_parent)}{CR}")
+print(f"       {CW}Child name does not match          :  {len(iss_child_diff)}{CR}")
 print()
-input("  Press Enter to close...")
+input(f"  {CW}Press Enter to close...{CR}")
