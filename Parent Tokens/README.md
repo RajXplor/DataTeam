@@ -163,5 +163,3 @@ The script prints a colour-coded summary as it runs — including the service na
 ```
 
 ---
-
-*Developed by 7GONEINSANE*
