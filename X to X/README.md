@@ -2,7 +2,7 @@
 
 **Automated data transformation tool for migrating children and emergency contact records from Xplor/QikKids into the PC Import format.**
 
-Built and maintained by [7GoneInsane](https://github.com/7goneinsane) · Current version: `v4`
+Built and maintained by [7GONEINSANE](https://github.com/7goneinsane) · Current version: `v4`
 
 ---
 
@@ -217,4 +217,4 @@ Raise an issue in this repository or contact the maintainer directly.
 
 ---
 
-*Developed by 7GoneInsane · For internal migration use only*
+*Developed by 7GONEINSANE · For internal migration use only*
