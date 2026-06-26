@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Dark theme as default */
+    --background:   240 10% 3.9%;
+    --foreground:   0 0% 98%;
+
+    --card:         240 10% 5.5%;
+    --card-foreground: 0 0% 98%;
+
+    --primary:      258 90% 66%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary:    240 4% 13%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted:        240 4% 13%;
+    --muted-foreground: 240 5% 55%;
+
+    --accent:       240 4% 13%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive:  0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success:      142 71% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --warning:      38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --border:       240 4% 14%;
+    --input:        240 4% 14%;
+    --ring:         258 90% 66%;
+    --radius:       0.5rem;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::-webkit-scrollbar        { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track  { @apply bg-transparent; }
+  ::-webkit-scrollbar-thumb  { @apply bg-zinc-700 rounded-full; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-zinc-600; }
+}
+
+/* Dropzone drag-over state */
+@layer utilities {
+  .drop-active {
+    @apply border-violet-500 scale-[1.01];
+    background-color: rgb(167 139 250 / 0.08);
+  }
+}
+
+/* Shimmer skeleton */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    hsl(240 4% 14%) 0%,
+    hsl(240 4% 18%) 40%,
+    hsl(240 4% 14%) 80%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2.5s linear infinite;
+}
