@@ -1,0 +1,111 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; }
+
+  html {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-brand-light-grey text-brand-charcoal dark:bg-slate-900 dark:text-slate-100;
+    min-height: 100vh;
+  }
+
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { @apply bg-transparent; }
+  ::-webkit-scrollbar-thumb { @apply bg-brand-grey-300 dark:bg-slate-600 rounded-full; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-brand-grey-500 dark:bg-slate-500; }
+}
+
+@layer components {
+  /* ── Inputs ── */
+  .input-base {
+    @apply w-full rounded-lg border border-brand-grey-100 bg-white px-3.5 py-2
+           text-sm text-brand-charcoal placeholder-brand-grey-300
+           ring-1 ring-slate-200/60
+           transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-brand-purple/30 focus:border-brand-purple
+           shadow-xs
+           dark:bg-slate-800 dark:border-slate-600 dark:ring-slate-700/40
+           dark:text-slate-100 dark:placeholder-slate-500
+           dark:focus:border-brand-purple dark:focus:ring-brand-purple/20;
+  }
+
+  /* ── Buttons ── */
+  .btn-primary {
+    @apply inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2
+           text-sm font-semibold text-white shadow-sm
+           transition-all duration-200
+           hover:bg-brand-purple-dark hover:shadow-md
+           active:scale-[0.98]
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-brand-purple;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 rounded-lg border border-brand-grey-100 bg-white px-3.5 py-2
+           text-sm font-medium text-brand-charcoal shadow-xs ring-1 ring-slate-200/60
+           transition-all duration-200
+           hover:bg-brand-light-grey2 hover:border-brand-grey-300
+           active:scale-[0.98]
+           disabled:opacity-50 disabled:cursor-not-allowed
+           dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200 dark:ring-slate-700/40
+           dark:hover:bg-slate-700;
+  }
+
+  .btn-download {
+    @apply inline-flex items-center gap-2 rounded-lg border border-brand-teal/30 bg-brand-teal/10 px-4 py-2
+           text-sm font-medium text-brand-teal-dark
+           transition-all duration-200
+           hover:bg-brand-teal hover:text-white hover:border-brand-teal
+           active:scale-[0.98]
+           dark:border-brand-teal/40 dark:bg-brand-teal/10 dark:text-brand-teal
+           dark:hover:bg-brand-teal dark:hover:text-white;
+  }
+
+  /* ── Cards ── */
+  .card {
+    @apply rounded-xl bg-white border border-brand-grey-100 shadow-sm ring-1 ring-slate-200/60
+           dark:bg-slate-800 dark:border-slate-700 dark:ring-slate-700/40;
+  }
+
+  .card-header {
+    @apply px-5 py-3.5 border-b border-brand-grey-100 dark:border-slate-700;
+  }
+
+  /* ── Typography ── */
+  .section-label {
+    @apply text-[10px] font-semibold uppercase tracking-widest text-brand-grey-500 dark:text-slate-400;
+  }
+
+  .page-title {
+    @apply text-xl font-semibold tracking-tight text-brand-charcoal dark:text-slate-100;
+  }
+
+  .page-subtitle {
+    @apply text-sm text-brand-grey-500 dark:text-slate-400 mt-0.5;
+  }
+}
+
+/* ── Animations ── */
+.dropzone-active {
+  @apply border-brand-purple bg-brand-purple-muted dark:bg-brand-purple/10;
+}
+
+@keyframes processing-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+.processing-pulse { animation: processing-pulse 1.8s ease-in-out infinite; }
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-in-up { animation: fade-in-up 0.25s ease-out both; }
