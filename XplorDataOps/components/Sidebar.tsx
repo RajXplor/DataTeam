@@ -64,7 +64,7 @@ export default function Sidebar() {
           <p className="text-base font-bold text-brand-charcoal dark:text-slate-100 tracking-tight leading-none">
             XplorDataOps
           </p>
-          <p className="text-xs text-brand-grey-500 dark:text-slate-500 mt-0.5">
+          <p className="text-xs text-brand-grey-500 dark:text-slate-500 mt-1.5">
             Data Operations Suite
           </p>
         </div>
