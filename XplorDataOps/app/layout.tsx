@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import Sidebar from '@/components/Sidebar';
 import './globals.css';
 
@@ -35,6 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Sidebar />
           <main className="flex-1 min-w-0">{children}</main>
         </div>
+        <SpeedInsights />
       </body>
     </html>
   );
