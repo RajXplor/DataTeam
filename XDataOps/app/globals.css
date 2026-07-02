@@ -40,7 +40,7 @@
 
   /* ── Buttons ── */
   .btn-primary {
-    @apply inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2
+    @apply inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2.5
            text-sm font-semibold text-white shadow-sm
            transition-all duration-200
            hover:bg-brand-purple-dark hover:shadow-md
@@ -76,20 +76,20 @@
   }
 
   .card-header {
-    @apply px-5 py-3.5 border-b border-brand-grey-100 dark:border-slate-700;
+    @apply px-5 py-4 border-b border-brand-grey-100 dark:border-slate-700;
   }
 
   /* ── Typography ── */
   .section-label {
-    @apply text-[10px] font-semibold uppercase tracking-widest text-brand-grey-500 dark:text-slate-400;
+    @apply text-xs font-semibold uppercase tracking-widest text-brand-grey-500 dark:text-slate-400;
   }
 
   .page-title {
-    @apply text-xl font-semibold tracking-tight text-brand-charcoal dark:text-slate-100;
+    @apply text-2xl font-bold tracking-tight text-brand-charcoal dark:text-slate-100;
   }
 
   .page-subtitle {
-    @apply text-sm text-brand-grey-500 dark:text-slate-400 mt-0.5;
+    @apply text-base text-brand-grey-500 dark:text-slate-400 mt-1;
   }
 }
 

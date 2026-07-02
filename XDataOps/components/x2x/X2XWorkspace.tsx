@@ -77,13 +77,13 @@ export default function X2XWorkspace() {
             <ArrowLeftRight className="w-4.5 h-4.5 text-brand-purple" strokeWidth={2.25} />
           </div>
           <div>
-            <h1 className="page-title">X2X Migration</h1>
-            <p className="page-subtitle">Build a Parent/Child import file from source exports.</p>
+            <h1 className="page-title">🔄 X&gt;X Migration</h1>
+            <p className="page-subtitle">Turn raw exports into a production-ready import in seconds.</p>
           </div>
         </div>
         {result && (
           <button onClick={handleReset} className="btn-secondary">
-            <RotateCcw className="w-3.5 h-3.5" /> New run
+            <RotateCcw className="w-3.5 h-3.5" /> 🔁 New run
           </button>
         )}
       </div>
@@ -93,7 +93,7 @@ export default function X2XWorkspace() {
           {/* File uploads */}
           <div className="grid sm:grid-cols-2 gap-4 mb-4">
             <FileDropzone
-              label="Children Data Master"
+              label="👶 Children Data Master"
               description="child_data_master export — CSV or Excel"
               file={childrenFile}
               onFileSelect={setChildrenFile}
@@ -101,7 +101,7 @@ export default function X2XWorkspace() {
               disabled={isProcessing}
             />
             <FileDropzone
-              label="Emergency Contact Reports"
+              label="🆘 Emergency Contact Reports"
               description="Emergency_contact_reports export"
               file={ecFile}
               onFileSelect={setEcFile}
@@ -167,9 +167,9 @@ export default function X2XWorkspace() {
 
           <button onClick={handleSubmit} disabled={!canSubmit} className="btn-primary">
             {isProcessing ? (
-              <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</>
+              <><Loader2 className="w-4 h-4 animate-spin" /> ⚙️ Processing…</>
             ) : (
-              <><ArrowLeftRight className="w-4 h-4" /> Generate import file</>
+              <><ArrowLeftRight className="w-4 h-4" /> ✨ Generate Import File</>
             )}
           </button>
         </div>

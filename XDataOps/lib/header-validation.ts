@@ -48,6 +48,15 @@ export const EXPECTED_HEADERS = {
     label: 'Parent Bank Details',
     required: ['First Name', 'Last Name', 'Bank Detail'],
   },
+  xxTokenChild: {
+    label: 'Child Details (X>X Token Import)',
+    required: ['Service Name'],
+    // Parent legacy/ID columns are detected via fuzzy matching in xx-token-logic.ts
+  },
+  xxTokenDs: {
+    label: 'DS Tokens (X>X Token Import)',
+    required: ['Club Number', 'Adfit No'],
+  },
 } as const;
 
 export interface ValidationError {

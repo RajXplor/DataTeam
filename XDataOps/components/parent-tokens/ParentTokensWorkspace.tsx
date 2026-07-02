@@ -120,27 +120,27 @@ export default function ParentTokensWorkspace() {
             <Wallet className="w-4.5 h-4.5 text-brand-teal-dark dark:text-brand-teal" strokeWidth={2.25} />
           </div>
           <div>
-            <h1 className="page-title">Parent Tokens &amp; Banking</h1>
-            <p className="page-subtitle">Match payment plans against DS tokens and the guardian list.</p>
+            <h1 className="page-title">💳 QK &gt; X ParentTokens</h1>
+            <p className="page-subtitle">Match, validate &amp; reconcile in a strict two-step workflow.</p>
           </div>
         </div>
         {(phase1Result || p1Error) && (
           <button onClick={handleReset} className="btn-secondary">
-            <RotateCcw className="w-3.5 h-3.5" /> New run
+            <RotateCcw className="w-3.5 h-3.5" /> 🔁 New run
           </button>
         )}
       </div>
 
       {/* ── STEP 1 ─────────────────────────────────────────────── */}
       <div className="space-y-4">
-        <StepHeader step={1} label="Generate Token Import Sheet" done={!!phase1Result} />
+        <StepHeader step={1} label="🪙 Generate Token Import Sheet" done={!!phase1Result} />
 
         {!phase1Result && (
           <div className="card p-5 fade-in-up">
             <div className="grid sm:grid-cols-3 gap-4 mb-4">
-              <FileDropzone label="Payment Plan"          description="payment_plan export"       file={ppFile}  onFileSelect={setPpFile}  required disabled={isP1} compact />
-              <FileDropzone label="DS Tokens"             description="DS token list"             file={dsFile}  onFileSelect={setDsFile}  required disabled={isP1} compact />
-              <FileDropzone label="Guardian Financial List" description="guardian_financial export" file={gflFile} onFileSelect={setGflFile} required disabled={isP1} compact />
+              <FileDropzone label="📋 Payment Plan"          description="payment_plan export"       file={ppFile}  onFileSelect={setPpFile}  required disabled={isP1} compact />
+              <FileDropzone label="🪙 DS Tokens"             description="DS token list"             file={dsFile}  onFileSelect={setDsFile}  required disabled={isP1} compact />
+              <FileDropzone label="📒 Guardian Financial List" description="guardian_financial export" file={gflFile} onFileSelect={setGflFile} required disabled={isP1} compact />
             </div>
 
             {showSizeWarn && (
@@ -163,8 +163,8 @@ export default function ParentTokensWorkspace() {
 
             <button onClick={runPhase1} disabled={!phase1Ready} className="btn-primary">
               {isP1
-                ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</>
-                : <><Wallet className="w-4 h-4" /> Generate Token Import <ChevronRight className="w-3.5 h-3.5" /></>
+                ? <><Loader2 className="w-4 h-4 animate-spin" /> ⚙️ Processing…</>
+                : <><Wallet className="w-4 h-4" /> 🚀 Run Token Matching <ChevronRight className="w-3.5 h-3.5" /></>
               }
             </button>
           </div>
@@ -175,7 +175,7 @@ export default function ParentTokensWorkspace() {
 
         {/* ── STEP 2 ────────────────────────────────────────────── */}
         <div className={`transition-all duration-300 ${phase2Unlocked ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
-          <StepHeader step={2} label="Generate No Banking Report (optional)" done={!!phase2Result} locked={!phase2Unlocked} />
+          <StepHeader step={2} label="🏦 Generate No Banking Report (optional)" done={!!phase2Result} locked={!phase2Unlocked} />
 
           {phase2Unlocked && !phase2Result && (
             <div className="card p-5 fade-in-up">
@@ -188,7 +188,7 @@ export default function ParentTokensWorkspace() {
 
               <div className="mb-4">
                 <FileDropzone
-                  label="Parent Bank Details Summary"
+                  label="🏦 Parent Bank Details Summary"
                   description="parent_bank_details_summary_report"
                   file={bankFile}
                   onFileSelect={setBankFile}
@@ -208,8 +208,8 @@ export default function ParentTokensWorkspace() {
 
               <button onClick={runPhase2} disabled={!phase2Ready} className="btn-primary">
                 {isP2
-                  ? <><Loader2 className="w-4 h-4 animate-spin" /> Generating…</>
-                  : <><Landmark className="w-4 h-4" /> Generate No Banking Report</>
+                  ? <><Loader2 className="w-4 h-4 animate-spin" /> ⚙️ Generating…</>
+                  : <><Landmark className="w-4 h-4" /> 📊 Generate No Banking Report</>
                 }
               </button>
             </div>

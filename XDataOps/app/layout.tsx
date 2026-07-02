@@ -3,7 +3,7 @@ import Sidebar from '@/components/Sidebar';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'XDataOps',
+  title: 'XplorDataOps',
   description: 'X2X migration and Parent Tokens & Banking report processing.',
 };
 
@@ -26,7 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             about the class mismatch introduced by the anti-flash script. */}
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className="dark:bg-slate-900">
+      <body className="dark:bg-slate-900" suppressHydrationWarning>
         <div className="flex min-h-screen">
           <Sidebar />
           <main className="flex-1 min-w-0">{children}</main>
