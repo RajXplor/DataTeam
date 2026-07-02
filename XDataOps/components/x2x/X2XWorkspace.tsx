@@ -77,7 +77,7 @@ export default function X2XWorkspace() {
             <ArrowLeftRight className="w-4.5 h-4.5 text-brand-purple" strokeWidth={2.25} />
           </div>
           <div>
-            <h1 className="page-title">🔄 X&gt;X Migration</h1>
+            <h1 className="page-title">👪 Parent&gt;Child Data</h1>
             <p className="page-subtitle">Turn raw exports into a production-ready import in seconds.</p>
           </div>
         </div>

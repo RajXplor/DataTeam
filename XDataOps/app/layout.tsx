@@ -4,7 +4,11 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'XplorDataOps',
-  description: 'X2X migration and Parent Tokens & Banking report processing.',
+  description: 'XplorDataOps — Childcare data operations suite.',
+  icons: {
+    icon: '/Xplor_Icon_White.png',
+    apple: '/Xplor_Icon_White.png',
+  },
 };
 
 // Anti-flash script: runs synchronously before React hydrates.

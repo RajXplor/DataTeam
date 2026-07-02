@@ -120,7 +120,7 @@ export default function ParentTokensWorkspace() {
             <Wallet className="w-4.5 h-4.5 text-brand-teal-dark dark:text-brand-teal" strokeWidth={2.25} />
           </div>
           <div>
-            <h1 className="page-title">💳 QK &gt; X ParentTokens</h1>
+            <h1 className="page-title">💳 QK&gt;X ParentTokens</h1>
             <p className="page-subtitle">Match, validate &amp; reconcile in a strict two-step workflow.</p>
           </div>
         </div>

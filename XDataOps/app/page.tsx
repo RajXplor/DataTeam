@@ -5,8 +5,8 @@ const WORKSPACES = [
   {
     href:        '/x2x',
     icon:        ArrowLeftRight,
-    emoji:       '🔄',
-    label:       'X>X Migration',
+    emoji:       '👪',
+    label:       'Parent & Child Data',
     badge:       'Import Builder',
     badgeColor:  'bg-brand-purple-muted dark:bg-brand-purple/20 text-brand-purple',
     accentColor: 'group-hover:border-brand-purple/30 dark:group-hover:border-brand-purple/40',
@@ -15,7 +15,7 @@ const WORKSPACES = [
   {
     href:        '/xx-token',
     icon:        KeyRound,
-    emoji:       '🔑',
+    emoji:       '💸',
     label:       'X>X Token Import',
     badge:       'Token Matcher',
     badgeColor:  'bg-brand-lime/15 text-brand-lime dark:bg-brand-lime/10',
@@ -25,8 +25,8 @@ const WORKSPACES = [
   {
     href:        '/parent-tokens',
     icon:        Wallet,
-    emoji:       '💳',
-    label:       'QK > X ParentTokens',
+    emoji:       '🚀',
+    label:       'QK>X ParentTokens',
     badge:       'Two-step Workflow',
     badgeColor:  'bg-brand-teal/10 text-brand-teal-dark dark:text-brand-teal',
     accentColor: 'group-hover:border-brand-teal/30 dark:group-hover:border-brand-teal/20',
@@ -54,8 +54,7 @@ const STEPS = [
 
 export default function HomePage() {
   return (
-    <div className="max-w-5xl mx-auto px-8 py-12 flex flex-col min-h-screen">
-      <div className="flex-1">
+    <div className="max-w-5xl mx-auto px-8 py-12">
 
         {/* Hero */}
         <div className="mb-12 max-w-3xl">
@@ -139,14 +138,6 @@ export default function HomePage() {
           <ShieldCheck className="w-4 h-4" />
           🔒 All processing runs in-memory on the server. No files are stored, logged, or retained between requests.
         </div>
-      </div>
-
-      {/* Developer credit — home page only */}
-      <footer className="mt-16 pt-6 border-t border-brand-grey-100 dark:border-slate-800">
-        <p className="text-xs text-slate-400 dark:text-slate-600 text-center tracking-wide">
-          Developed by <span className="font-medium text-slate-500 dark:text-slate-500">7goneinsane</span>
-        </p>
-      </footer>
     </div>
   );
 }

@@ -1,18 +1,19 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ArrowLeftRight, Wallet, Rocket, Sun, Moon, KeyRound } from 'lucide-react';
+import { ArrowLeftRight, Wallet, Sun, Moon, KeyRound } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 
 const NAV_GROUPS = [
   {
-    label: '⚡X>X',
+    label: '⚡X>X Migration',
     items: [
       {
         href: '/x2x',
-        label: '🔄 X>X Migration',
-        description: 'Child & contact import',
+        label: '👪 Parent & Child Data',
+        description: 'All Contacts Data',
         icon: ArrowLeftRight,
       },
       {
@@ -24,12 +25,12 @@ const NAV_GROUPS = [
     ],
   },
   {
-    label: '🚀 QK>X',
+    label: '🚀 QK Migration',
     items: [
       {
         href: '/parent-tokens',
-        label: '💳 QK > X ParentTokens',
-        description: 'Payment Details + Banking Report',
+        label: '💳 QK>X ParentTokens',
+        description: 'Payment Details & Banking Report',
         icon: Wallet,
       },
     ],
@@ -50,8 +51,14 @@ export default function Sidebar() {
         href="/"
         className="px-5 py-5 flex items-center gap-3 group hover:opacity-80 transition-opacity duration-150"
       >
-        <div className="w-9 h-9 rounded-xl bg-brand-purple flex items-center justify-center shrink-0 shadow-sm">
-          <Rocket className="w-4.5 h-4.5 text-white" strokeWidth={2.25} />
+        <div className="w-12 h-12 rounded-2xl bg-slate-900/10 dark:bg-slate-950/65 flex items-center justify-center overflow-hidden">
+          <Image
+            src="/Xplor_Icon_White.png"
+            alt="Xplor logo"
+            width={40}
+            height={40}
+            className="object-contain"
+          />
         </div>
         <div>
           <p className="text-base font-bold text-brand-charcoal dark:text-slate-100 tracking-tight leading-none">
@@ -137,6 +144,9 @@ export default function Sidebar() {
         </div>
         <p className="text-xs text-brand-grey-300 dark:text-slate-600 leading-relaxed">
           🔒 In-memory only — no files stored.
+        </p>
+        <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5">
+          Developed by <span className="font-medium">7goneinsane</span>
         </p>
       </div>
     </aside>

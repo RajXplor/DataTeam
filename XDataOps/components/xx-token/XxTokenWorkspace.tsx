@@ -64,7 +64,7 @@ export default function XxTokenWorkspace() {
             <KeyRound className="w-4.5 h-4.5 text-brand-lime" strokeWidth={2.25} />
           </div>
           <div>
-            <h1 className="page-title">🔑 X&gt;X Token Import</h1>
+            <h1 className="page-title">💸 X&gt;X Token Import</h1>
             <p className="page-subtitle">Match parent legacy IDs to their tokens — instantly.</p>
           </div>
         </div>

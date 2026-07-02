@@ -46,7 +46,10 @@ export const EXPECTED_HEADERS = {
   },
   bankDetails: {
     label: 'Parent Bank Details',
-    required: ['First Name', 'Last Name', 'Bank Detail'],
+    required: ['First Name', 'Last Name'],
+    // 'Bank Detail' column is intentionally NOT required — the processing logic
+    // handles its absence gracefully by using the full dataset when the column
+    // is missing, matching the behaviour of the original Python script.
   },
   xxTokenChild: {
     label: 'Child Details (X>X Token Import)',
