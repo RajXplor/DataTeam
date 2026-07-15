@@ -129,6 +129,52 @@ function dsClientToNorm(clientStr: string): string {
 // have a title row above the real header row.
 
 // ─────────────────────────────────────────────────────────────
+// HEADER NORMALISATION — Payment Plan & DS Tokens
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * Normalise Payment Plan headers so the tool accepts both space-separated
+ * and underscore-separated column names from the same export.
+ *
+ * "Parent First Name"  →  "Parent_First_Name"
+ * "Parent_First_Name"  →  "Parent_First_Name"  (unchanged)
+ *
+ * Applied immediately after reading, before any field access.
+ */
+export function normalisePPHeaders(
+  rows: Record<string, string>[],
+): Record<string, string>[] {
+  return rows.map((row) => {
+    const out: Record<string, string> = {};
+    for (const [k, v] of Object.entries(row)) {
+      // trim surrounding whitespace, then collapse internal whitespace → underscore
+      out[k.trim().replace(/\s+/g, '_')] = v;
+    }
+    return out;
+  });
+}
+
+/**
+ * Normalise DS Token headers: map the alias "Club No" → "Club Number" so
+ * all downstream processing code can unconditionally reference "Club Number"
+ * regardless of what the specific export system wrote in the header row.
+ *
+ * Every other column is passed through unchanged.
+ */
+export function normaliseDSHeaders(
+  rows: Record<string, string>[],
+): Record<string, string>[] {
+  return rows.map((row) => {
+    // Only remap if the alias is present AND the canonical name is absent
+    if ('Club No' in row && !('Club Number' in row)) {
+      const { 'Club No': clubVal, ...rest } = row;
+      return { ...rest, 'Club Number': clubVal };
+    }
+    return row;
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
 // EXCEL STYLING UTILITIES (replicates openpyxl style from original)
 // ─────────────────────────────────────────────────────────────
 
@@ -200,8 +246,8 @@ export async function processParentTokens(
 ): Promise<PTResult> {
 
   // ── STEP 3: Load data ─────────────────────────────────────
-  const pp  = readSpreadsheetRowsWithPreambleSkip(ppBuffer);
-  const ds  = readSpreadsheetRowsWithPreambleSkip(dsBuffer);
+  const pp  = normalisePPHeaders(readSpreadsheetRowsWithPreambleSkip(ppBuffer));
+  const ds  = normaliseDSHeaders(readSpreadsheetRowsWithPreambleSkip(dsBuffer));
   const gfl = readSpreadsheetRowsWithPreambleSkip(gflBuffer);
 
   // Extract service name / id from payment plan

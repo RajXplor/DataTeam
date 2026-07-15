@@ -4,7 +4,7 @@
  * Core lib/parent-tokens-logic.ts is untouched.
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { processParentTokens } from '@/lib/parent-tokens-logic';
+import { processParentTokens, normalisePPHeaders, normaliseDSHeaders } from '@/lib/parent-tokens-logic';
 import { readSpreadsheetRowsWithPreambleSkip } from '@/lib/file-parsing';
 import { validateFileHeaders, EXPECTED_HEADERS } from '@/lib/header-validation';
 
@@ -35,11 +35,11 @@ export async function POST(req: NextRequest) {
     // ── Header validation ─────────────────────────────────────
     const validationErrors = [];
 
-    const ppRows  = readSpreadsheetRowsWithPreambleSkip(ppBuffer);
+    const ppRows  = normalisePPHeaders(readSpreadsheetRowsWithPreambleSkip(ppBuffer));
     const ppErr   = validateFileHeaders(ppRows,  EXPECTED_HEADERS.paymentPlan.required,  EXPECTED_HEADERS.paymentPlan.label);
     if (ppErr)  validationErrors.push(ppErr);
 
-    const dsRows  = readSpreadsheetRowsWithPreambleSkip(dsBuffer);
+    const dsRows  = normaliseDSHeaders(readSpreadsheetRowsWithPreambleSkip(dsBuffer));
     const dsErr   = validateFileHeaders(dsRows,  EXPECTED_HEADERS.dsTokens.required,     EXPECTED_HEADERS.dsTokens.label);
     if (dsErr)  validationErrors.push(dsErr);
 
