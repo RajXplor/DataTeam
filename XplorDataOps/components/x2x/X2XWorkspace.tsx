@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Loader2, AlertTriangle, ArrowLeftRight, RotateCcw, Hash, Building2, Info } from 'lucide-react';
+import { Loader2, AlertTriangle, ArrowLeftRight, RotateCcw, Hash, Building2 } from 'lucide-react';
 import FileDropzone from '@/components/FileDropzone';
 import X2XResults from '@/components/x2x/X2XResults';
 import ValidationErrorAlert from '@/components/ValidationErrorAlert';
@@ -9,51 +9,18 @@ import { SOFT_UPLOAD_WARNING_BYTES, formatBytes } from '@/lib/client-utils';
 import type { X2XResult } from '@/lib/x2x-logic';
 import type { ValidationError } from '@/lib/header-validation';
 
-// ─── Reusable helper UI components (presentation only) ────────
-
-/** Subtle navigation path hint shown below a dropzone */
-function PathHint({ text }: { text: string }) {
-  return (
-    <div className="mt-2.5 flex items-start gap-1.5 rounded-lg bg-brand-light-grey2 dark:bg-slate-700/40 border border-brand-grey-100 dark:border-slate-600 px-2.5 py-2">
-      <Info className="w-3 h-3 text-brand-purple shrink-0 mt-px" />
-      <span className="text-[11px] font-mono text-brand-grey-500 dark:text-slate-400 leading-relaxed">
-        {text}
-      </span>
-    </div>
-  );
-}
-
-/** Swappable screenshot placeholder — replace src with your actual image path */
-function ScreenshotPlaceholder({ src, alt, onOpen }: { src: string; alt: string; onOpen: () => void }) {
-  return (
-    <div className="mt-2 rounded-lg border border-dashed border-brand-grey-300 dark:border-slate-600 overflow-hidden bg-brand-light-grey2/60 dark:bg-slate-800/60 p-2">
-      <div className="overflow-auto rounded-md bg-white/40 dark:bg-slate-900/20">
-        <img
-          src={src}
-          alt={alt}
-          onClick={onOpen}
-          className="block mx-auto w-full max-w-[900px] max-h-[420px] md:max-h-[500px] object-contain rounded-md shadow-sm cursor-zoom-in transition-transform duration-150 hover:scale-[1.01]"
-        />
-      </div>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────
-
 export default function X2XWorkspace() {
   const [childrenFile, setChildrenFile] = useState<File | null>(null);
   const [ecFile, setEcFile]             = useState<File | null>(null);
   const [serviceId, setServiceId]       = useState('');
   const [serviceName, setServiceName]   = useState('');
-  const [activeImage, setActiveImage]   = useState<string | null>(null);
 
-  const [isProcessing, setIsProcessing]         = useState(false);
-  const [result, setResult]                     = useState<X2XResult | null>(null);
-  const [error, setError]                       = useState<string | null>(null);
+  const [isProcessing, setIsProcessing]     = useState(false);
+  const [result, setResult]                 = useState<X2XResult | null>(null);
+  const [error, setError]                   = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<ValidationError[] | null>(null);
 
-  const combinedSize    = (childrenFile?.size ?? 0) + (ecFile?.size ?? 0);
+  const combinedSize = (childrenFile?.size ?? 0) + (ecFile?.size ?? 0);
   const showSizeWarning = combinedSize > SOFT_UPLOAD_WARNING_BYTES;
 
   const canSubmit = useMemo(
@@ -77,7 +44,10 @@ export default function X2XWorkspace() {
       const res  = await fetch('/api/x2x', { method: 'POST', body: fd });
       const json = await res.json();
 
-      if (json.validationErrors) { setValidationErrors(json.validationErrors); return; }
+      if (json.validationErrors) {
+        setValidationErrors(json.validationErrors);
+        return;
+      }
       if (!res.ok || !json.success) throw new Error(json.error ?? 'Processing failed.');
 
       setResult(json.data as X2XResult);
@@ -107,7 +77,7 @@ export default function X2XWorkspace() {
             <ArrowLeftRight className="w-4.5 h-4.5 text-brand-purple" strokeWidth={2.25} />
           </div>
           <div>
-            <h1 className="page-title">🔄 X&gt;X Migration</h1>
+            <h1 className="page-title">👪 Parent&gt;Child Data</h1>
             <p className="page-subtitle">Turn raw exports into a production-ready import in seconds.</p>
           </div>
         </div>
@@ -120,45 +90,24 @@ export default function X2XWorkspace() {
 
       {!result && (
         <div className="card p-5 fade-in-up">
-          {/* File uploads — each column contains its dropzone + instructional helper */}
-          <div className="grid sm:grid-cols-2 gap-5 mb-4">
-
-            {/* Children Data Master */}
-            <div>
-              <FileDropzone
-                label="👶 Children Data Master"
-                description="child_data_master export — CSV or Excel"
-                file={childrenFile}
-                onFileSelect={setChildrenFile}
-                required
-                disabled={isProcessing}
-              />
-              <PathHint text="Profiles > Children > Filter -> Status (As required) > Export > Master CSV" />
-              <ScreenshotPlaceholder
-                src="/xx-token-child-export.png"
-                alt="Screenshot: how to export the Children Data Master from Xplor"
-                onOpen={() => setActiveImage('/xx-token-child-export.png')}
-              />
-            </div>
-
-            {/* Emergency Contact Reports */}
-            <div>
-              <FileDropzone
-                label="🆘 Emergency Contact Reports"
-                description="Emergency_contact_reports export"
-                file={ecFile}
-                onFileSelect={setEcFile}
-                required
-                disabled={isProcessing}
-              />
-              <PathHint text="Reports > Contact Reports > Child Emergency Contacts > Export CSV" />
-              <ScreenshotPlaceholder
-                src="/emergency-contacts-export.png"
-                alt="Screenshot: how to export Emergency Contact Reports from Xplor"
-                onOpen={() => setActiveImage('/emergency-contacts-export.png')}
-              />
-            </div>
-
+          {/* File uploads */}
+          <div className="grid sm:grid-cols-2 gap-4 mb-4">
+            <FileDropzone
+              label="👶 Children Data Master"
+              description="child_data_master export — CSV or Excel"
+              file={childrenFile}
+              onFileSelect={setChildrenFile}
+              required
+              disabled={isProcessing}
+            />
+            <FileDropzone
+              label="🆘 Emergency Contact Reports"
+              description="Emergency_contact_reports export"
+              file={ecFile}
+              onFileSelect={setEcFile}
+              required
+              disabled={isProcessing}
+            />
           </div>
 
           {/* Service details */}
@@ -227,29 +176,6 @@ export default function X2XWorkspace() {
       )}
 
       {result && <X2XResults result={result} />}
-
-      {activeImage && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
-          onClick={() => setActiveImage(null)}
-        >
-          <div className="relative max-h-[90vh] max-w-[95vw] rounded-xl bg-white p-3 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <button
-              type="button"
-              onClick={() => setActiveImage(null)}
-              className="absolute -top-3 -right-3 flex h-8 w-8 items-center justify-center rounded-full bg-slate-800 text-lg font-bold text-white shadow-lg hover:bg-slate-700"
-              aria-label="Close enlarged image"
-            >
-              ×
-            </button>
-            <img
-              src={activeImage}
-              alt="Expanded image preview"
-              className="max-h-[86vh] max-w-[92vw] rounded-lg object-contain"
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 }
