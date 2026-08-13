@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import {
   Loader2, AlertTriangle, Wallet, RotateCcw, Landmark,
-  CheckCircle2, Download, ChevronRight, Lock,
+  CheckCircle2, Download, ChevronRight, Lock, Info,
 } from 'lucide-react';
 import FileDropzone from '@/components/FileDropzone';
 import ParentTokensResults from '@/components/parent-tokens/ParentTokensResults';
@@ -20,12 +20,45 @@ interface Phase2Data {
   summary: { noBankingCount?: number };
 }
 
+// ─── Reusable helper UI components (presentation only) ────────
+
+/** Subtle navigation path hint shown below a dropzone */
+function PathHint({ text }: { text: string }) {
+  return (
+    <div className="mt-2.5 flex items-start gap-1.5 rounded-lg bg-brand-light-grey2 dark:bg-slate-700/40 border border-brand-grey-100 dark:border-slate-600 px-2.5 py-2">
+      <Info className="w-3 h-3 text-brand-purple shrink-0 mt-px" />
+      <span className="text-[11px] font-mono text-brand-grey-500 dark:text-slate-400 leading-relaxed">
+        {text}
+      </span>
+    </div>
+  );
+}
+
+/** Swappable screenshot placeholder — replace src with your actual image path */
+function ScreenshotPlaceholder({ src, alt, onOpen }: { src: string; alt: string; onOpen: () => void }) {
+  return (
+    <div className="mt-2 rounded-lg border border-dashed border-brand-grey-300 dark:border-slate-600 overflow-hidden bg-brand-light-grey2/60 dark:bg-slate-800/60 p-2">
+      <div className="overflow-auto rounded-md bg-white/40 dark:bg-slate-900/20">
+        <img
+          src={src}
+          alt={alt}
+          onClick={onOpen}
+          className="block mx-auto w-full max-w-[900px] max-h-[420px] md:max-h-[500px] object-contain rounded-md shadow-sm cursor-zoom-in transition-transform duration-150 hover:scale-[1.01]"
+        />
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+
 export default function ParentTokensWorkspace() {
   // ── Files (kept in state so Phase 2 can re-use them) ────────
-  const [ppFile,  setPpFile]  = useState<File | null>(null);
-  const [dsFile,  setDsFile]  = useState<File | null>(null);
-  const [gflFile, setGflFile] = useState<File | null>(null);
+  const [ppFile,   setPpFile]   = useState<File | null>(null);
+  const [dsFile,   setDsFile]   = useState<File | null>(null);
+  const [gflFile,  setGflFile]  = useState<File | null>(null);
   const [bankFile, setBankFile] = useState<File | null>(null);
+  const [activeImage, setActiveImage] = useState<string | null>(null);
 
   // ── Phase results ────────────────────────────────────────────
   const [phase1Result, setPhase1Result] = useState<Phase1Data | null>(null);
@@ -39,11 +72,11 @@ export default function ParentTokensWorkspace() {
   const [p1ValErrors, setP1ValErrors] = useState<ValidationError[] | null>(null);
   const [p2ValErrors, setP2ValErrors] = useState<ValidationError[] | null>(null);
 
-  const phase1Ready   = !!ppFile && !!dsFile && !!gflFile && !isP1;
+  const phase1Ready    = !!ppFile && !!dsFile && !!gflFile && !isP1;
   const phase2Unlocked = phase1Result !== null;
-  const phase2Ready   = !!bankFile && !isP2;
+  const phase2Ready    = !!bankFile && !isP2;
 
-  const phase1Size = (ppFile?.size ?? 0) + (dsFile?.size ?? 0) + (gflFile?.size ?? 0);
+  const phase1Size   = (ppFile?.size ?? 0) + (dsFile?.size ?? 0) + (gflFile?.size ?? 0);
   const showSizeWarn = phase1Size > SOFT_UPLOAD_WARNING_BYTES;
 
   // ── Phase 1 submit ───────────────────────────────────────────
@@ -120,7 +153,7 @@ export default function ParentTokensWorkspace() {
             <Wallet className="w-4.5 h-4.5 text-brand-teal-dark dark:text-brand-teal" strokeWidth={2.25} />
           </div>
           <div>
-            <h1 className="page-title">💳 QK&gt;X ParentTokens</h1>
+            <h1 className="page-title">💳 QK &gt; X ParentTokens</h1>
             <p className="page-subtitle">Match, validate &amp; reconcile in a strict two-step workflow.</p>
           </div>
         </div>
@@ -137,10 +170,66 @@ export default function ParentTokensWorkspace() {
 
         {!phase1Result && (
           <div className="card p-5 fade-in-up">
-            <div className="grid sm:grid-cols-3 gap-4 mb-4">
-              <FileDropzone label="📋 Payment Plan"          description="payment_plan export"       file={ppFile}  onFileSelect={setPpFile}  required disabled={isP1} compact />
-              <FileDropzone label="🪙 DS Tokens"             description="DS token list"             file={dsFile}  onFileSelect={setDsFile}  required disabled={isP1} compact />
-              <FileDropzone label="📒 Guardian Financial List" description="guardian_financial export" file={gflFile} onFileSelect={setGflFile} required disabled={isP1} compact />
+            {/*
+              Each dropzone column now contains:
+              1. The FileDropzone control
+              2. A PathHint with instructional text
+              3. A ScreenshotPlaceholder where applicable
+            */}
+            <div className="grid sm:grid-cols-3 gap-5 mb-4">
+
+              {/* Payment Plan */}
+              <div>
+                <FileDropzone
+                  label="📋 Payment Plan"
+                  description="payment_plan export"
+                  file={ppFile}
+                  onFileSelect={setPpFile}
+                  required
+                  disabled={isP1}
+                  compact
+                />
+                <PathHint text="This report was extracted using an Azure Runbook. Before inserting the data here, ensure it has been converted to the required import template format." />
+                <ScreenshotPlaceholder
+                  src="/payment-plan-template.png"
+                  alt="Screenshot: where to find the Payment Plan import template"
+                  onOpen={() => setActiveImage('/payment-plan-template.png')}
+                />
+              </div>
+
+              {/* DS Tokens — text note only, no image */}
+              <div>
+                <FileDropzone
+                  label="🪙 DS Tokens"
+                  description="DS token list"
+                  file={dsFile}
+                  onFileSelect={setDsFile}
+                  required
+                  disabled={isP1}
+                  compact
+                />
+                <PathHint text="Note: This is extracted by the Payments team." />
+              </div>
+
+              {/* Guardian Financial List */}
+              <div>
+                <FileDropzone
+                  label="📒 Guardian Financial List"
+                  description="guardian_financial export"
+                  file={gflFile}
+                  onFileSelect={setGflFile}
+                  required
+                  disabled={isP1}
+                  compact
+                />
+                <PathHint text="Financial > Parent Accounts > Export > CSV" />
+                <ScreenshotPlaceholder
+                  src="/guardian-financial-list-export.png"
+                  alt="Screenshot: how to export the Guardian Financial List from Xplor"
+                  onOpen={() => setActiveImage('/guardian-financial-list-export.png')}
+                />
+              </div>
+
             </div>
 
             {showSizeWarn && (
@@ -243,6 +332,29 @@ export default function ParentTokensWorkspace() {
           )}
         </div>
       </div>
+
+      {activeImage && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+          onClick={() => setActiveImage(null)}
+        >
+          <div className="relative max-h-[90vh] max-w-[95vw] rounded-xl bg-white p-3 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              onClick={() => setActiveImage(null)}
+              className="absolute -top-3 -right-3 flex h-8 w-8 items-center justify-center rounded-full bg-slate-800 text-lg font-bold text-white shadow-lg hover:bg-slate-700"
+              aria-label="Close enlarged image"
+            >
+              ×
+            </button>
+            <img
+              src={activeImage}
+              alt="Expanded image preview"
+              className="max-h-[86vh] max-w-[92vw] rounded-lg object-contain"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
