@@ -60,6 +60,10 @@ export const EXPECTED_HEADERS = {
     label: 'DS Tokens (X>X Token Import)',
     required: ['Club Number', 'Adfit No'],
   },
+  d2dStaff: {
+    label: 'D > D Staff Export',
+    required: ['First Name', 'Last Name', 'Teacher Certification', 'Role', 'Gender', 'Start Date'],
+  },
 } as const;
 
 export interface ValidationError {

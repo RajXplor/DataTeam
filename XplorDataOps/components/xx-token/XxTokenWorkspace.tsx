@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { Loader2, AlertTriangle, KeyRound, RotateCcw, Info } from 'lucide-react';
 import FileDropzone from '@/components/FileDropzone';
 import XxTokenResults from '@/components/xx-token/XxTokenResults';
@@ -93,11 +94,17 @@ export default function XxTokenWorkspace() {
       {/* Page header */}
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-brand-lime/20 dark:bg-brand-lime/10 flex items-center justify-center shrink-0">
-            <KeyRound className="w-4.5 h-4.5 text-brand-lime" strokeWidth={2.25} />
+          <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
+            <Image
+              src="/Xplor_Icon_Color.png"
+              alt="X>X Token Import"
+              width={24}
+              height={24}
+              className="object-contain"
+            />
           </div>
           <div>
-            <h1 className="page-title">🔑 X&gt;X Token Import</h1>
+            <h1 className="page-title">X&gt;X Token Import</h1>
             <p className="page-subtitle">Match parent legacy IDs to their tokens — instantly.</p>
           </div>
         </div>

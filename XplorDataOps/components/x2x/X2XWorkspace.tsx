@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import Image from 'next/image';
 import { Loader2, AlertTriangle, ArrowLeftRight, RotateCcw, Hash, Building2, Info } from 'lucide-react';
 import FileDropzone from '@/components/FileDropzone';
 import X2XResults from '@/components/x2x/X2XResults';
@@ -103,11 +104,17 @@ export default function X2XWorkspace() {
       {/* Page header */}
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-brand-purple-muted dark:bg-brand-purple/20 flex items-center justify-center shrink-0">
-            <ArrowLeftRight className="w-4.5 h-4.5 text-brand-purple" strokeWidth={2.25} />
+          <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
+            <Image
+              src="/Xplor_Icon_Color.png"
+              alt="X>X Migration"
+              width={24}
+              height={24}
+              className="object-contain"
+            />
           </div>
           <div>
-            <h1 className="page-title">🔄 X&gt;X Migration</h1>
+            <h1 className="page-title">X&gt;X Migration</h1>
             <p className="page-subtitle">Turn raw exports into a production-ready import in seconds.</p>
           </div>
         </div>

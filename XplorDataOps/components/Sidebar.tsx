@@ -1,36 +1,50 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { ArrowLeftRight, Wallet, Sun, Moon, KeyRound } from 'lucide-react';
+import { ArrowLeftRight, Wallet, Sun, Moon, KeyRound, Compass } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 
 const NAV_GROUPS = [
   {
-    label: '⚡X>X Migration',
+    label: 'X>X Migration',
+    image: '/Xplor_Icon_Color.png',
     items: [
       {
         href: '/x2x',
-        label: '👪 Parent & Child Data',
-        description: 'All Contacts Data',
+        label: 'X>X Migration',
+        description: 'Child & contact import',
         icon: ArrowLeftRight,
       },
       {
         href: '/xx-token',
-        label: '💸 X>X Token Import',
-        description: 'Payment Details Migration',
+        label: 'X>X Token Import',
+        description: 'Parent legacy → token match',
         icon: KeyRound,
       },
     ],
   },
   {
-    label: '🚀 QK>X Migration',
+    label: 'D>D Migration',
+    image: '/Discover_Icon_Color.png',
+    items: [
+      {
+        href: '/d2d-staff',
+        label: 'D > D Staff',
+        description: 'Staff export → import template',
+        icon: Compass,
+      },
+    ],
+  },
+  {
+    label: 'QK>X Migration',
+    image: '/QikKids_Icon_Color.png',
     items: [
       {
         href: '/parent-tokens',
-        label: '💳 QK>X ParentTokens',
-        description: 'Payment Details & Banking Report',
+        label: 'QK > X ParentTokens',
+        description: 'Banking & token reports',
         icon: Wallet,
       },
     ],
@@ -74,7 +88,18 @@ export default function Sidebar() {
       <nav className="flex-1 px-3 py-2 space-y-5 overflow-y-auto">
         {NAV_GROUPS.map((group) => (
           <div key={group.label}>
-            <p className="section-label px-3 pb-2">{group.label}</p>
+            <div className="flex items-center gap-2 px-3 pb-2 mb-2">
+              {group.image && (
+                <Image
+                  src={group.image}
+                  alt={group.label}
+                  width={20}
+                  height={20}
+                  className="object-contain"
+                />
+              )}
+              <p className="section-label text-xs font-semibold text-brand-grey-500 dark:text-slate-400 uppercase tracking-wider">{group.label}</p>
+            </div>
             <div className="space-y-0.5">
               {group.items.map((item) => {
                 const isActive = pathname === item.href || pathname.startsWith(item.href + '/');

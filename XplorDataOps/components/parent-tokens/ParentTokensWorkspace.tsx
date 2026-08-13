@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import Image from 'next/image';
 import {
   Loader2, AlertTriangle, Wallet, RotateCcw, Landmark,
   CheckCircle2, Download, ChevronRight, Lock, Info,
@@ -163,11 +164,17 @@ export default function ParentTokensWorkspace() {
       {/* Page header */}
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-brand-teal/10 dark:bg-brand-teal/10 flex items-center justify-center shrink-0">
-            <Wallet className="w-4.5 h-4.5 text-brand-teal-dark dark:text-brand-teal" strokeWidth={2.25} />
+          <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
+            <Image
+              src="/QikKids_Icon_Color.png"
+              alt="QK>X ParentTokens"
+              width={24}
+              height={24}
+              className="object-contain"
+            />
           </div>
           <div>
-            <h1 className="page-title">💳 QK &gt; X ParentTokens</h1>
+            <h1 className="page-title">QK &gt; X ParentTokens</h1>
             <p className="page-subtitle">Match, validate &amp; reconcile in a strict two-step workflow.</p>
           </div>
         </div>
