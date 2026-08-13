@@ -5,6 +5,8 @@ import { Loader2, AlertTriangle, ArrowLeftRight, RotateCcw, Hash, Building2, Inf
 import FileDropzone from '@/components/FileDropzone';
 import X2XResults from '@/components/x2x/X2XResults';
 import ValidationErrorAlert from '@/components/ValidationErrorAlert';
+import childExportImg from '../xx-token/xx-token-child-export.png';
+import emergencyContactsImg from './emergency-contacts-export.png';
 import { SOFT_UPLOAD_WARNING_BYTES, formatBytes } from '@/lib/client-utils';
 import type { X2XResult } from '@/lib/x2x-logic';
 import type { ValidationError } from '@/lib/header-validation';
@@ -135,9 +137,9 @@ export default function X2XWorkspace() {
               />
               <PathHint text="Profiles > Children > Filter -> Status (As required) > Export > Master CSV" />
               <ScreenshotPlaceholder
-                src="/xx-token-child-export.png"
+                src={childExportImg}
                 alt="Screenshot: how to export the Children Data Master from Xplor"
-                onOpen={() => setActiveImage('/xx-token-child-export.png')}
+                onOpen={() => setActiveImage(childExportImg)}
               />
             </div>
 
@@ -153,9 +155,9 @@ export default function X2XWorkspace() {
               />
               <PathHint text="Reports > Contact Reports > Child Emergency Contacts > Export CSV" />
               <ScreenshotPlaceholder
-                src="/emergency-contacts-export.png"
+                src={emergencyContactsImg}
                 alt="Screenshot: how to export Emergency Contact Reports from Xplor"
-                onOpen={() => setActiveImage('/emergency-contacts-export.png')}
+                onOpen={() => setActiveImage(emergencyContactsImg)}
               />
             </div>
 
