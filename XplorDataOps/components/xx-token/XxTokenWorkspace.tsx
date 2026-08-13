@@ -5,7 +5,6 @@ import { Loader2, AlertTriangle, KeyRound, RotateCcw, Info } from 'lucide-react'
 import FileDropzone from '@/components/FileDropzone';
 import XxTokenResults from '@/components/xx-token/XxTokenResults';
 import ValidationErrorAlert from '@/components/ValidationErrorAlert';
-import childExportImg from './xx-token-child-export.png';
 import { SOFT_UPLOAD_WARNING_BYTES, formatBytes } from '@/lib/client-utils';
 import type { XxTokenResult } from '@/lib/xx-token-logic';
 import type { ValidationError } from '@/lib/header-validation';
@@ -126,7 +125,7 @@ export default function XxTokenWorkspace() {
               />
               <PathHint text="Ensure you are in the new (Imported) centre: Profiles > Children > Filter Active + Waitlist + Inactive > Export > Master CSV" />
               <ScreenshotPlaceholder
-                src={childExportImg}
+                src="/xx-token-child-export.png"
                 alt="Screenshot: export Child Details from the imported centre in Xplor"
                 onOpen={() => setIsImageOpen(true)}
               />
@@ -210,7 +209,7 @@ export default function XxTokenWorkspace() {
               ×
             </button>
             <img
-              src={childExportImg}
+              src="/xx-token-child-export.png"
               alt="Screenshot: export Child Details from the imported centre in Xplor"
               className="max-h-[86vh] max-w-[92vw] rounded-lg object-contain"
             />

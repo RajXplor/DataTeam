@@ -8,8 +8,6 @@ import {
 import FileDropzone from '@/components/FileDropzone';
 import ParentTokensResults from '@/components/parent-tokens/ParentTokensResults';
 import ValidationErrorAlert from '@/components/ValidationErrorAlert';
-import paymentPlanImg from './payment-plan-template.png';
-import guardianFinancialImg from './guardian-financial-list-export.png';
 import { SOFT_UPLOAD_WARNING_BYTES, formatBytes, downloadBase64File, MIME_CSV, MIME_XLSX } from '@/lib/client-utils';
 import type { PTResult } from '@/lib/parent-tokens-logic';
 import type { ValidationError } from '@/lib/header-validation';
@@ -193,9 +191,9 @@ export default function ParentTokensWorkspace() {
                 />
                 <PathHint text="This report was extracted using an Azure Runbook. Before inserting the data here, ensure it has been converted to the required import template format." />
                 <ScreenshotPlaceholder
-                  src={paymentPlanImg}
+                  src="/payment-plan-template.png"
                   alt="Screenshot: where to find the Payment Plan import template"
-                  onOpen={() => setActiveImage(paymentPlanImg)}
+                  onOpen={() => setActiveImage('/payment-plan-template.png')}
                 />
               </div>
 
@@ -226,9 +224,9 @@ export default function ParentTokensWorkspace() {
                 />
                 <PathHint text="Financial > Parent Accounts > Export > CSV" />
                 <ScreenshotPlaceholder
-                  src={guardianFinancialImg}
+                  src="/guardian-financial-list-export.png"
                   alt="Screenshot: how to export the Guardian Financial List from Xplor"
-                  onOpen={() => setActiveImage(guardianFinancialImg)}
+                  onOpen={() => setActiveImage('/guardian-financial-list-export.png')}
                 />
               </div>
 

@@ -25,7 +25,7 @@ const NAV_GROUPS = [
     ],
   },
   {
-    label: '🚀 QK>X Migration',
+    label: '🚀 QK Migration',
     items: [
       {
         href: '/parent-tokens',
