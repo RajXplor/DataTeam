@@ -99,7 +99,7 @@ export default function D2DStaffWorkspace() {
           </div>
           <div>
             <h1 className="page-title">D &gt; D Staff</h1>
-            <p className="page-subtitle">Transform a staff export into the D-system import template.</p>
+            <p className="page-subtitle">Transform Staff Report to Discover Import Template.</p>
           </div>
         </div>
         {result && (
