@@ -170,7 +170,7 @@ export default function Sidebar() {
         <p className="text-xs text-brand-grey-300 dark:text-slate-600 leading-relaxed">
           🔒 In-memory only — no files stored.
         </p>
-        <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5">
+        <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1.5">
           Developed by <span className="font-medium">7goneinsane</span>
         </p>
       </div>

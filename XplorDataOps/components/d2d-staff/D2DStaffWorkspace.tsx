@@ -115,46 +115,46 @@ export default function D2DStaffWorkspace() {
           <div className="mb-5">
             <FileDropzone
               label="📋 Extracted Staff File"
-              description="Staff export from Xplor — CSV or Excel"
+              description="Staff export from Discover — CSV/XLSX/XLS"
               file={staffFile}
               onFileSelect={setStaffFile}
               required
               disabled={isProcessing}
             />
             <div className="mt-2.5 rounded-lg bg-brand-light-grey2 dark:bg-slate-700/40 border border-brand-grey-100 dark:border-slate-600 px-4 py-3.5">
-              <p className="text-xs text-brand-grey-500 dark:text-slate-400 mb-1 flex items-center gap-1.5 font-mono">
-                <Info className="w-3 h-3 text-brand-purple" />
-                <p>Reports &gt; Staff Reports &gt; Staff Details &gt; Report Fields
+              <p className="text-xs text-brand-grey-500 dark:text-slate-400 mb-4 flex items-center gap-1.5 font-mono">
+                <Info className="w-7 h-7 text-brand-purple" />
+                <p>Reports &gt; Staff Reports &gt; Staff Details &gt; Report Fields &gt; Sort Order = First Name Ascending &gt; Orientation = Portrait &gt; Get Report &gt; Copy to Clipboard &gt; Paste into Excel and Save
                 </p>
               </p>
-              <p className="text-xs font-semibold text-brand-charcoal dark:text-slate-200 mb-2">
+              <p className="text-xs font-semibold text-brand-charcoal dark:text-slate-200 mb-3">
                 Report Fields to Select
               </p>
               <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-                <p className="text-xs text-brand-grey-500 dark:text-slate-400">• Address</p>
-                <p className="text-xs text-brand-grey-500 dark:text-slate-400">• Birthdate</p>
-                <p className="text-xs text-brand-grey-500 dark:text-slate-400">• Daytime Phone</p>
-                <p className="text-xs text-brand-grey-500 dark:text-slate-400">• Emergency Day Phone</p>
-                <p className="text-xs text-brand-grey-500 dark:text-slate-400">• Emergency Mobile</p>
-                <p className="text-xs text-brand-grey-500 dark:text-slate-400">• Emergency Name</p>
-                <p className="text-xs text-brand-grey-500 dark:text-slate-400">• Ethnicity</p>
-                <p className="text-xs text-brand-grey-500 dark:text-slate-400">• First Aid Expiry</p>
-                <p className="text-xs text-brand-grey-500 dark:text-slate-400">• Full Time Staff</p>
-                <p className="text-xs text-brand-grey-500 dark:text-slate-400">• Gender</p>
-                <p className="text-xs text-brand-grey-500 dark:text-slate-400">• Highest Qual</p>
-                <p className="text-xs text-brand-grey-500 dark:text-slate-400">• Leaving Date</p>
-                <p className="text-xs text-brand-grey-500 dark:text-slate-400">• Mobile</p>
-                <p className="text-xs text-brand-grey-500 dark:text-slate-400">• Paid Staff</p>
-                <p className="text-xs text-brand-grey-500 dark:text-slate-400">• Payroll ID</p>
-                <p className="text-xs text-brand-grey-500 dark:text-slate-400">• Permanent Staff</p>
-                <p className="text-xs text-brand-grey-500 dark:text-slate-400">• Personal Email</p>
-                <p className="text-xs text-brand-grey-500 dark:text-slate-400">• Police Check Expiry</p>
-                <p className="text-xs text-brand-grey-500 dark:text-slate-400">• Post Code</p>
-                <p className="text-xs text-brand-grey-500 dark:text-slate-400">• Role</p>
-                <p className="text-xs text-brand-grey-500 dark:text-slate-400">• Start Date</p>
-                <p className="text-xs text-brand-grey-500 dark:text-slate-400">• Teacher Cert</p>
-                <p className="text-xs text-brand-grey-500 dark:text-slate-400">• Teacher Cert Expiry</p>
-                <p className="text-xs text-brand-grey-500 dark:text-slate-400">• Teacher Cert Number</p>
+                <p className="text-xs text-brand-grey-500 dark:text-slate-400">1) Address</p>
+                <p className="text-xs text-brand-grey-500 dark:text-slate-400">2) Birthdate</p>
+                <p className="text-xs text-brand-grey-500 dark:text-slate-400">3) Daytime Phone</p>
+                <p className="text-xs text-brand-grey-500 dark:text-slate-400">4) Emergency Day Phone</p>
+                <p className="text-xs text-brand-grey-500 dark:text-slate-400">5) Emergency Mobile</p>
+                <p className="text-xs text-brand-grey-500 dark:text-slate-400">6) Emergency Name</p>
+                <p className="text-xs text-brand-grey-500 dark:text-slate-400">7) Ethnicity</p>
+                <p className="text-xs text-brand-grey-500 dark:text-slate-400">8) First Aid Expiry</p>
+                <p className="text-xs text-brand-grey-500 dark:text-slate-400">9) Full Time Staff</p>
+                <p className="text-xs text-brand-grey-500 dark:text-slate-400">10) Gender</p>
+                <p className="text-xs text-brand-grey-500 dark:text-slate-400">11) Highest Qual</p>
+                <p className="text-xs text-brand-grey-500 dark:text-slate-400">12) Leaving Date</p>
+                <p className="text-xs text-brand-grey-500 dark:text-slate-400">13) Mobile</p>
+                <p className="text-xs text-brand-grey-500 dark:text-slate-400">14) Paid Staff</p>
+                <p className="text-xs text-brand-grey-500 dark:text-slate-400">15) Payroll ID</p>
+                <p className="text-xs text-brand-grey-500 dark:text-slate-400">16) Permanent Staff</p>
+                <p className="text-xs text-brand-grey-500 dark:text-slate-400">17) Personal Email</p>
+                <p className="text-xs text-brand-grey-500 dark:text-slate-400">18) Police Check Expiry</p>
+                <p className="text-xs text-brand-grey-500 dark:text-slate-400">19) Post Code</p>
+                <p className="text-xs text-brand-grey-500 dark:text-slate-400">20) Role</p>
+                <p className="text-xs text-brand-grey-500 dark:text-slate-400">21) Start Date</p>
+                <p className="text-xs text-brand-grey-500 dark:text-slate-400">22) Teacher Cert</p>
+                <p className="text-xs text-brand-grey-500 dark:text-slate-400">23) Teacher Cert Expiry</p>
+                <p className="text-xs text-brand-grey-500 dark:text-slate-400">24) Teacher Cert Number</p>
               </div>
               
             </div>
