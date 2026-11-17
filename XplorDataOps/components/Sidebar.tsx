@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { ArrowLeftRight, Wallet, Sun, Moon, KeyRound, Compass } from 'lucide-react';
+import { ArrowLeftRight, Wallet, Sun, Moon, KeyRound, Compass, Train } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 
 const NAV_GROUPS = [
@@ -34,6 +34,12 @@ const NAV_GROUPS = [
         label: 'D > D Staff',
         description: 'Staff export → import template',
         icon: Compass,
+      },
+      {
+        href: '/infocare-d',
+        label: 'Infocare > D Migration',
+        description: 'Multi-file Infocare migration',
+        icon: Train,
       },
     ],
   },
