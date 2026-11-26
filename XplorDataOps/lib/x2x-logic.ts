@@ -160,50 +160,16 @@ function _norm(s: unknown): string {
   return String(s).trim().toLowerCase();
 }
 
-/** _medicare(val) — digits only, longest run wins */
+/** _medicare(val) — preserve exact digits, slash, and suffix; strip all spaces */
 function _medicare(val: unknown): string {
   const s = _v(val);
   if (!s) return '';
-  const nums = s.match(/\d+/g);
-  if (!nums || nums.length === 0) return '';
-  return nums.reduce((a, b) => (b.length > a.length ? b : a));
+  return s.replace(/\s+/g, '');
 }
 
-/** _medicare_date(val) — handles Oct-29, standard dates, pure digits → today */
+/** _medicare_date(val) — preserve raw value as-is; trim whitespace only, never reformat or default to today */
 function _medicare_date(val: unknown): string {
-  const today = new Date();
-  const s = _v(val);
-  if (!s) return '';
-
-  // Pure digits → use today
-  if (/^\d+$/.test(s.trim())) {
-    return formatDDMMYYYY(today);
-  }
-
-  // Month-DD pattern: e.g. "Oct-29" or "Oct 29"
-  const monthDayMatch = s.trim().match(/^([A-Za-z]{2,9})[^A-Za-z0-9]*(\d{1,2})$/i);
-  if (monthDayMatch) {
-    const monthStr = monthDayMatch[1].toLowerCase();
-    const day = parseInt(monthDayMatch[2], 10);
-    if (MONTH_ABBR[monthStr] && day >= 1 && day <= 31) {
-      const monthNum = MONTH_ABBR[monthStr];
-      try {
-        const dt = new Date(today.getFullYear(), monthNum - 1, day);
-        if (!isNaN(dt.getTime()) && dt.getDate() === day) {
-          return formatDDMMYYYY(dt);
-        }
-      } catch {
-        // fall through
-      }
-    }
-  }
-
-  // Standard date parse
-  const dt = parseFlexDate(s);
-  if (dt) return formatDDMMYYYY(dt);
-
-  // Fallback to today
-  return formatDDMMYYYY(today);
+  return _v(val);
 }
 
 /** _safe_filename(name) — replace spaces with _, strip specials */

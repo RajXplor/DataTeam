@@ -124,8 +124,7 @@ export default function D2DStaffWorkspace() {
             <div className="mt-2.5 rounded-lg bg-brand-light-grey2 dark:bg-slate-700/40 border border-brand-grey-100 dark:border-slate-600 px-4 py-3.5">
               <p className="text-xs text-brand-grey-500 dark:text-slate-400 mb-4 flex items-center gap-1.5 font-mono">
                 <Info className="w-7 h-7 text-brand-purple" />
-                <p>Reports &gt; Staff Reports &gt; Staff Details &gt; Report Fields &gt; Sort Order = First Name Ascending &gt; Orientation = Portrait &gt; Get Report &gt; Copy to Clipboard &gt; Paste into Excel and Save
-                </p>
+                <span>Reports &gt; Staff Reports &gt; Staff Details &gt; Report Fields &gt; Sort Order = First Name Ascending &gt; Orientation = Portrait &gt; Get Report &gt; Copy to Clipboard &gt; Paste into Excel and Save</span>
               </p>
               <p className="text-xs font-semibold text-brand-charcoal dark:text-slate-200 mb-3">
                 Report Fields to Select
