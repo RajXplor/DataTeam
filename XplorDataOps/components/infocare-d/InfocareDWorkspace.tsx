@@ -20,10 +20,15 @@ function PathHint({ text }: { text: string }) {
   );
 }
 
-function ScreenshotPlaceholder({ src, alt }: { src: string; alt: string }) {
+function ScreenshotPlaceholder({ src, alt, onOpen }: { src: string; alt: string; onOpen: () => void }) {
   return (
     <div className="mt-3 rounded-xl border-2 border-dashed border-brand-grey-200 dark:border-slate-600 overflow-hidden bg-brand-light-grey2/40 dark:bg-slate-800/40 transition-colors hover:border-brand-purple/30">
-      <img src={src} alt={alt} className="w-full object-contain max-h-28 opacity-80" />
+      <img
+        src={src}
+        alt={alt}
+        onClick={onOpen}
+        className="block mx-auto w-full max-w-[900px] max-h-[220px] md:max-h-[300px] object-contain cursor-zoom-in transition-transform duration-150 hover:scale-[1.01]"
+      />
     </div>
   );
 }
@@ -184,6 +189,7 @@ export default function InfocareDWorkspace() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [result,       setResult]       = useState<InfocareDResult | null>(null);
   const [error,        setError]        = useState<string | null>(null);
+  const [activeImage,  setActiveImage]  = useState<string | null>(null);
 
   const allFiles = [
     childCurrentA, childCurrentB, childWaitlistA, childWaitlistB,
@@ -296,8 +302,9 @@ export default function InfocareDWorkspace() {
         >
           <PathHint text="Discover Test Center > Stitch Files > Infocare Headers" />
           <ScreenshotPlaceholder
-            src="/images/placeholder-infocare-children.png"
+            src="/infocare-children-export-path.jpg"
             alt="Infocare children export path"
+            onOpen={() => setActiveImage('/infocare-children-export-path.jpg')}
           />
           <div className="grid sm:grid-cols-2 gap-4 mt-4">
             <StitchCard
@@ -336,8 +343,9 @@ export default function InfocareDWorkspace() {
         >
           <PathHint text="Staff Files > Stitch > Format Cols U, AD, AH, AI, AJ, AN, AO, AP > Check Col Q ID Type" />
           <ScreenshotPlaceholder
-            src="/images/placeholder-infocare-staff.png"
+            src="/infocare-staff-export-path.jpg"
             alt="Infocare staff export path"
+            onOpen={() => setActiveImage('/infocare-staff-export-path.jpg')}
           />
           <div className="mt-4 max-w-sm">
             <StitchCard
@@ -357,8 +365,9 @@ export default function InfocareDWorkspace() {
         >
           <PathHint text="Format Cols E, I, O > Remove Unlinked Contacts" />
           <ScreenshotPlaceholder
-            src="/images/placeholder-infocare-contacts.png"
+            src="/infocare-contact-export-path.jpg"
             alt="Infocare contacts export path"
+            onOpen={() => setActiveImage('/infocare-contact-export-path.jpg')}
           />
 
           <div className="mt-4 space-y-4">
@@ -426,8 +435,23 @@ export default function InfocareDWorkspace() {
             </button>
           </div>
         </div>
-
       </div>
+
+      {activeImage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" onClick={() => setActiveImage(null)}>
+          <div className="relative max-h-[90vh] max-w-[95vw] rounded-xl bg-white p-3 shadow-2xl" onClick={(event) => event.stopPropagation()}>
+            <button
+              type="button"
+              onClick={() => setActiveImage(null)}
+              className="absolute -top-3 -right-3 flex h-8 w-8 items-center justify-center rounded-full bg-slate-800 text-lg font-bold text-white shadow-lg hover:bg-slate-700"
+              aria-label="Close enlarged image"
+            >
+              ×
+            </button>
+            <img src={activeImage} alt="Enlarged Infocare export path" className="max-h-[86vh] max-w-[92vw] rounded-lg object-contain" />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
